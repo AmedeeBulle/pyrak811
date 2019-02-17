@@ -1,6 +1,6 @@
 """RAK811 library and command line utility.
 
-blah
+Setup file for the project
 
 Copyright 2019 Philippe Vanhaesendonck
 
@@ -29,7 +29,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='rak811',
-    version='0.1.0',
+    version='0.2.0',
     description='Interface for RAK811 LoRa module',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -62,7 +62,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'rak811=rak811:main',
+            'rak811=rak811.cli:cli',
         ],
     },
 

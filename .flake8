@@ -1,3 +1,3 @@
 [flake8]
-ignore = D100, D102, D103, W503
+ignore = D100, D102, D103, D301, W503
 import-order-style = google
