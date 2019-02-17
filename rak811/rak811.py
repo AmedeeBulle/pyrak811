@@ -273,7 +273,7 @@ class Rak811(object):
     @property
     def mode(self):
         """Get module Mode (LoRaWan or LoRaP2P)."""
-        return(self._send_command('mode'))
+        return(self._int(self._send_command('mode')))
 
     @mode.setter
     def mode(self, value):
@@ -283,7 +283,7 @@ class Rak811(object):
     @property
     def recv_ex(self):
         """Get RSSI & SNR report on receive flag (Enabled/Disabled)."""
-        return(self._send_command('recv_ex'))
+        return(self._int(self._send_command('recv_ex')))
 
     @recv_ex.setter
     def recv_ex(self, value):
@@ -396,7 +396,7 @@ class Rak811(object):
     @property
     def dr(self):
         """Get next send data rate."""
-        return(self._send_command('dr'))
+        return(self._int(self._send_command('dr')))
 
     @dr.setter
     def dr(self, value):
@@ -479,7 +479,7 @@ class Rak811(object):
 
         # Process events
         events = self._get_events()
-        # Check for downstream
+        # Check for downlink
         for event in events:
             # Format: <status >,<port>[,<rssi>][,<snr>],<len>[,<data>]
             event_items = event.split(',')
