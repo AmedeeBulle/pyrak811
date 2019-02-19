@@ -62,6 +62,9 @@ setup(
             'flake8-docstrings',
             'flake8-import-order',
             'pep8-naming==0.5.0',
+            'pytest',
+            'mock',
+            'coverage',
         ],
     },
     entry_points={

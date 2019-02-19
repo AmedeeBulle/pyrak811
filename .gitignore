@@ -5,3 +5,4 @@ venv
 ttn_secrets.py
 build
 dist
+.coverage
