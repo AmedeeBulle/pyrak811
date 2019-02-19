@@ -20,12 +20,20 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 from os import path
+from platform import machine
 
 from setuptools import find_packages, setup
 
 here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
+
+install_requires = [
+    'click',
+    'pyserial',
+]
+if machine().startswith('arm'):
+    install_requires.append('RPi.GPIO')
 
 setup(
     name='rak811',
@@ -46,11 +54,7 @@ setup(
     ],
     packages=find_packages(),
     python_requires='>=3.5',
-    install_requires=[
-        'click',
-        'RPi.GPIO',
-        'pyserial',
-    ],
+    install_requires=install_requires,
     extras_require={
         'test': [
             'flake8',
