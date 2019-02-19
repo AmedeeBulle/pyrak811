@@ -1,10 +1,13 @@
 from time import sleep
 
-from mock import patch
+from mock import Mock, patch
 from pytest import raises
-from rak811.serial import BAUDRATE, PORT, TIMEOUT
-from rak811.serial import Rak811Serial, Rak811TimeoutError
 from serial import EIGHTBITS
+# Ignore RPi.GPIO
+p = patch.dict('sys.modules', {'RPi': Mock()})
+p.start()
+from rak811.serial import BAUDRATE, PORT, TIMEOUT # noqa
+from rak811.serial import Rak811Serial, Rak811TimeoutError # noqa
 
 
 @patch('rak811.serial.Serial')
@@ -79,6 +82,7 @@ def emulate_rak_input(mock, timeout, data_in):
 
     When used, this function needs to be called before instanciating the
     Rak811Serial object, as it starts teh read thread immediately.
+
     """
     def side_effect():
         if len(data):
