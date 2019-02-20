@@ -37,7 +37,7 @@ if machine().startswith('arm'):
 
 setup(
     name='rak811',
-    version='0.2.0',
+    version='0.3.0',
     description='Interface for RAK811 LoRa module',
     long_description=long_description,
     long_description_content_type='text/markdown',
