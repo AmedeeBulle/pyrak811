@@ -332,12 +332,16 @@ class Rak811(object):
             duty: respect duty cycle flag (on/off)
         """
         self._send_command('set_config='
-                           + '&'.join([':'.join(kv) for kv in kwargs.items()]))
+                           + '&'.join([':'.join(str(val) for val in kv)
+                                       for kv in kwargs.items()]))
 
     def get_config(self, key):
         """Get LoraWan configuration from EEPROM.
 
         The parameter must be a key from the above list.
+
+        Note: get_config returns always strings, no integer do avoid unwanted
+        conversion for keys.
         """
         return self._send_command('get_config={0}'.format(key))
 
@@ -413,12 +417,12 @@ class Rak811(object):
                 for i in self._send_command('link_cnt').split(',')])
 
     @link_cnt.setter
-    def link_cnt(self, *value):
+    def link_cnt(self, value):
         """Set up & downlink counters.
 
         Counters are 32 bits integers in decimal format.
         """
-        self._send_command('link_cnt=' + ','.join(value))
+        self._send_command('link_cnt=' + ','.join(str(val) for val in value))
 
     @property
     def abp_info(self):
