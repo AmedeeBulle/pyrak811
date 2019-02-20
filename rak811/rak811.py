@@ -395,7 +395,7 @@ class Rak811(object):
     @property
     def signal(self):
         """Get (RSSI,SNR) from latest received packet."""
-        return([self._int(i) for i in self._send_command('signal').split(',')])
+        return(tuple(self._int(i) for i in self._send_command('signal').split(',')))
 
     @property
     def dr(self):
@@ -413,8 +413,8 @@ class Rak811(object):
 
         Counters are 32 bits integers in decimal format.
         """
-        return([self._int(i)
-                for i in self._send_command('link_cnt').split(',')])
+        return(tuple(self._int(i)
+                for i in self._send_command('link_cnt').split(',')))
 
     @link_cnt.setter
     def link_cnt(self, value):
@@ -432,7 +432,7 @@ class Rak811(object):
         following tuple is returned:
             (NetworkID, DevAddr, Nwkskey, Appskey)
         """
-        return(self._send_command('abp_info').split(','))
+        return(tuple(self._send_command('abp_info').split(',')))
 
     def _add_downlink(self, event):
         """Add message to the downlink list.

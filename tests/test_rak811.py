@@ -309,7 +309,7 @@ def test_join_otaa_failure(mock_serial, mock_send, mock_events):
 def test_signal(mock_serial, mock_send):
     """Test signal command."""
     lora = Rak811()
-    assert lora.signal == [-30, 26]
+    assert lora.signal == (-30, 26)
     mock_send.assert_called_once_with('signal')
     lora.close()
 
@@ -349,7 +349,7 @@ def test_set_link_cnt(mock_serial, mock_send):
 def test_get_link_cnt(mock_serial, mock_send):
     """Test link_cnt getter."""
     lora = Rak811()
-    assert lora.link_cnt == [15, 2]
+    assert lora.link_cnt == (15, 2)
     mock_send.assert_called_once_with('link_cnt')
     lora.close()
 
@@ -364,12 +364,12 @@ def test_get_link_cnt(mock_serial, mock_send):
 def test_abp_info(mock_serial, mock_send):
     """Test abp_info command."""
     lora = Rak811()
-    assert lora.abp_info == [
+    assert lora.abp_info == (
         '13',
         '26dddddd',
         '9annnnnnnnnnnnnnnnnnnnnnnnnnnnnn',
         '0baaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-    ]
+    )
     mock_send.assert_called_once_with('abp_info')
     lora.close()
 
