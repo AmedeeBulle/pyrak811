@@ -1,3 +1,4 @@
+"""Units tests for the Rak811Serial class."""
 from time import sleep
 
 from mock import Mock, patch
@@ -14,7 +15,7 @@ from rak811.serial import Rak811Serial, Rak811TimeoutError # noqa
 def test_instantiate_default(mock_serial):
     """Test that Rak811Serial can be instantiated.
 
-    Check for basic initialization and teardown of the serial interface.
+    Check for basic initialisation and teardown of the serial interface.
     """
     rs = Rak811Serial()
     # Test default parameters are used
@@ -74,14 +75,14 @@ def emulate_rak_input(mock, timeout, data_in):
     """Emulate Rak811 output.
 
     Parameters:
-        mock: mocked Serial classe
-        timeout is the Serial() readline timeout
+        mock: mocked Serial class
+        timeout is the Serial.readline() timeout
         data_in is a list of tuples (delay, bytes):
             delay: delay before data is available
             bytes: output from the Rak811 module
 
-    When used, this function needs to be called before instanciating the
-    Rak811Serial object, as it starts teh read thread immediately.
+    When used, this function needs to be called before instantiating the
+    Rak811Serial object, as it starts the read thread immediately.
 
     """
     def side_effect():
