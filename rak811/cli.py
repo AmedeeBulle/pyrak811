@@ -23,7 +23,8 @@ from json import dumps
 import click
 from rak811 import Mode, RecvEx, Reset
 from rak811 import Rak811
-from rak811 import Rak811Error, Rak811EventError, Rak811ResponseError
+from rak811 import Rak811Error
+from rak811 import Rak811EventError, Rak811ResponseError, Rak811TimeoutError
 
 # Valid configuration keys
 CONFIG_KEYS = ('dev_addr', 'dev_eui', 'app_eui', 'app_key', 'nwks_key',
@@ -58,6 +59,8 @@ def print_exception(e):
         click.echo('RAK811 response error {}: {}'.format(e.errno, e.strerror))
     elif isinstance(e, Rak811EventError):
         click.echo('RAK811 event error {}: {}'.format(e.errno, e.strerror))
+    elif isinstance(e, Rak811TimeoutError):
+        click.echo('RAK811 timeout: {}'.format(e))
     else:
         click.echo('RAK811 unexpected exception {}'.format(e))
 
@@ -364,7 +367,7 @@ def abp_info(ctx):
         click.echo('Nwkskey: {}'.format(nwks_key))
         click.echo('Appskey: {}'.format(apps_key))
     else:
-        click.echo('{} {} {} {}'.format(nwk_id, dev_addr, nwks_key, apps_key))
+        click.echo('{} {} {} {}'.format(nwk_id, dev_addr, nwks_key, apps_key))
     lora.close()
 
 
@@ -413,8 +416,9 @@ def send(ctx, port, confirm, binary, data, json):
 
     if ctx.obj['VERBOSE']:
         click.echo('Message sent.')
-    downlink = lora.get_downlink()
-    if downlink:
+    downlinks = lora.get_downlink()
+    if downlinks:
+        downlink = downlinks[0]
         if json:
             click.echo(dumps(downlink, indent=4))
         elif ctx.obj['VERBOSE']:
