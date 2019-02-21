@@ -20,7 +20,6 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 from os import path
-from platform import machine
 
 from setuptools import find_packages, setup
 
@@ -28,16 +27,9 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-install_requires = [
-    'click',
-    'pyserial',
-]
-if machine().startswith('arm'):
-    install_requires.append('RPi.GPIO')
-
 setup(
     name='rak811',
-    version='0.3.0',
+    version='0.4.0',
     description='Interface for RAK811 LoRa module',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -54,7 +46,11 @@ setup(
     ],
     packages=find_packages(),
     python_requires='>=3.5',
-    install_requires=install_requires,
+    install_requires=[
+        'click',
+        'pyserial',
+        'RPi.GPIO; platform_machine=="armv7l" or platform_machine=="armv6l"'
+    ],
     extras_require={
         'test': [
             'flake8',
