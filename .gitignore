@@ -6,3 +6,5 @@ ttn_secrets.py
 build
 dist
 .coverage
+htmlcov
+.tox

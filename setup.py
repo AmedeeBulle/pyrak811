@@ -61,6 +61,7 @@ setup(
             'pytest',
             'mock',
             'coverage',
+            'tox',
         ],
     },
     entry_points={
