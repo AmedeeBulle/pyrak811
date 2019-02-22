@@ -1,0 +1,36 @@
+sudo: false
+
+language: python
+
+python:
+  - '3.5'
+  - '3.6'
+  - '3.7'
+
+install:
+  - pip install tox-travis
+
+script:
+  - tox
+
+stages:
+  - test
+  - name: deploy
+    if: tag IS present
+
+jobs:
+  fast_finish: true
+  include:
+  - stage: deploy
+    python: 3.5
+    install: true
+    script: true
+    after_succes: true
+    deploy:
+      provider: pypi
+      user: amedee-ci
+      password:
+        secure: Aar1EE8AUe4g92y1z9HLUI3626OiEePAFaoO7MCf/emIWEVLnmzaq+7gHvrP3i4egwxY3+A69naV856N/a+5Af/7se/zF8BcmTQlGn4g9eJXh0oCzawIPs7VNxCvqjQzEwzKTjkRDK1ViDUMwer3qKkLEHmr9eitpcgq9B6Tjj5sOyA7giOkDkEuBk6h136wAFQoU6UHz/PdXplJoy0QQWSJ3JFZbdwbyN6e2hg0chP5LWr9H8H0ALmoqWtUaK22GEyJPuEJldPcmZh7F8v4+OGSbeGcm5FsCdW5kxQYILpffcdQYDbH0MbDvupXJFEy6IjM2dwhUqv/EheJiPIkMdeoMzftg5sGKGg1ExazKvtt5o8AgXqYts6qoZYHamSZ4hDW5nSCl4B8WpRsyb0XVt00w+AdqxWQRpiPa46KJJq+BsYpu92iLxRzM8PgWlqodcVsvK/83EHF7oQIYx8qaRnEhtP08JxDJQDUuyLu2rGomnZLrtGbk+rwC+GbjG0ws4ocaYOgGicBHDy8RGlA4sx5QavF5upow4+PO4cn1I5CYQ17OF+0Xc/CY8i/zFNKUPTsbrrB+vQSbg2xFVsMZgoCfz60hM+1gVeZEtcOZG/5UDrBHN96SvokpJNVi8QpQnZx8793IyxXizkcBA9vXxpGpC7uO2EWWqoe/5RPjDI=
+      distributions: sdist bdist_wheel
+      on:
+        all_branches: true
