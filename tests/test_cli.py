@@ -331,12 +331,8 @@ def test_send_receive_json(runner, mock_rak811):
         confirm=False,
         port=1
     )
-    assert (
-        '{\n'
-        '    "port": 11,\n'
-        '    "rssi": -34,\n'
-        '    "snr": 27,\n'
-        '    "len": 4,\n'
-        '    "data": "65666768"\n'
-        '}\n'
-    ) in result.output
+    assert ('"port": 11') in result.output
+    assert ('"rssi": -34') in result.output
+    assert ('"snr": 27') in result.output
+    assert ('"len": 4') in result.output
+    assert ('"data": "65666768"') in result.output

@@ -5,7 +5,7 @@ Rak811Serial is tested separately and therefore mocked in this suite.
 RPi.GPIO is completely ignored as not available on all platforms, and its use
 by the Rak811 class very limited.
 """
-from mock import Mock, patch
+from mock import call, Mock, patch
 from pytest import fixture, raises
 # Ignore RPi.GPIO
 p = patch.dict('sys.modules', {'RPi': Mock()})
@@ -192,7 +192,11 @@ def test_get_recv_ex(mock_send, lora):
 def test_set_config(mock_send, lora):
     """Test config setter."""
     lora.set_config(adr='on', dr=5)
-    mock_send.assert_called_once_with('set_config=adr:on&dr:5')
+    assert len(mock_send.mock_calls) == 1
+    assert mock_send.mock_calls[0] in (
+        call('set_config=adr:on&dr:5'),
+        call('set_config=dr:5&adr:on')
+    )
 
 
 @patch.object(Rak811, '_send_command', return_value='1')
