@@ -1,4 +1,8 @@
 # RAK811 Python 3 library for Raspberry Pi
+[![Latest Version](https://img.shields.io/pypi/v/rak811.svg)](https://pypi.org/project/rak811/)
+[![Build Status](https://travis-ci.org/AmedeeBulle/pyrak811.svg?branch=master)](https://travis-ci.org/AmedeeBulle/pyrak811)
+[![codecov](https://codecov.io/gh/AmedeeBulle/pyrak811/branch/master/graph/badge.svg)](https://codecov.io/gh/AmedeeBulle/pyrak811)
+
 ## About
 RAK811 Python 3 library and command-line interface for use with the Raspberry Pi LoRa pHAT.
 
