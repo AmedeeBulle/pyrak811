@@ -395,7 +395,8 @@ class Rak811(object):
     @property
     def signal(self):
         """Get (RSSI,SNR) from latest received packet."""
-        return(tuple(self._int(i) for i in self._send_command('signal').split(',')))
+        return(tuple(self._int(i)
+                     for i in self._send_command('signal').split(',')))
 
     @property
     def dr(self):
@@ -414,7 +415,7 @@ class Rak811(object):
         Counters are 32 bits integers in decimal format.
         """
         return(tuple(self._int(i)
-                for i in self._send_command('link_cnt').split(',')))
+               for i in self._send_command('link_cnt').split(',')))
 
     @link_cnt.setter
     def link_cnt(self, value):
