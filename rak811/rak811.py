@@ -520,3 +520,19 @@ class Rak811(object):
             return None
         else:
             return self._downlink.pop(0)
+
+    """Radio commands."""
+
+    @property
+    def radio_status(self):
+        """Get radio statistics.
+
+        Return a tuple: (TxSuccessCnt, TxErrCnt, RxSuccessCnt, RxTimeOutCnt,
+                         RxErrCnt, Rssi, Snr)
+        """
+        return(tuple(self._int(i)
+               for i in self._send_command('status').split(',')))
+
+    def clear_radio_status(self):
+        """Clear radio statistics."""
+        self._send_command('status=0')

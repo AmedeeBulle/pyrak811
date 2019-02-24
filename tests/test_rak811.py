@@ -377,3 +377,17 @@ def test_get_send_receive_no_recv_ex(mock_send, mock_events, lora):
         'len': 4,
         'data': '65666768',
     }
+
+
+@patch.object(Rak811, '_send_command', return_value=('8,0,1,0,0,-48,28'))
+def test_radio_status(mock_send, lora):
+    """Test radio_status command."""
+    assert lora.radio_status == (8, 0, 1, 0, 0, -48, 28)
+    mock_send.assert_called_once_with('status')
+
+
+@patch.object(Rak811, '_send_command')
+def test_clear_radio_status(mock_send, lora):
+    """Test clear_radio_status command."""
+    lora.clear_radio_status()
+    mock_send.assert_called_once_with('status=0')

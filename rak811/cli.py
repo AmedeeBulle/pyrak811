@@ -435,5 +435,47 @@ def send(ctx, port, confirm, binary, data, json):
     lora.close()
 
 
+@cli.command()
+@click.pass_context
+def radio_status(ctx):
+    """Get radio statistics.
+
+    Returns: TxSuccessCnt, TxErrCnt, RxSuccessCnt, RxTimeOutCnt, RxErrCnt,
+    Rssi, Snr.
+    """
+    lora = Rak811()
+    (
+        tx_success_cnt, tx_err_cnt,
+        rx_success_cnt, rx_timeout_cnt, rx_err_cnt,
+        rssi, snr
+    ) = lora.radio_status
+    if ctx.obj['VERBOSE']:
+        click.echo('TxSuccessCnt: {}'.format(tx_success_cnt))
+        click.echo('TxErrCnt: {}'.format(tx_err_cnt))
+        click.echo('RxSuccessCnt: {}'.format(rx_success_cnt))
+        click.echo('RxTimeOutCnt: {}'.format(rx_timeout_cnt))
+        click.echo('RxErrCnt: {}'.format(rx_err_cnt))
+        click.echo('RSSI: {}'.format(rssi))
+        click.echo('SNR: {}'.format(snr))
+    else:
+        click.echo('{} {} {} {} {} {} {}'.format(
+            tx_success_cnt, tx_err_cnt,
+            rx_success_cnt, rx_timeout_cnt, rx_err_cnt,
+            rssi, snr
+        ))
+    lora.close()
+
+
+@cli.command()
+@click.pass_context
+def clear_radio_status(ctx):
+    """Clear radio statistics."""
+    lora = Rak811()
+    lora.clear_radio_status()
+    if ctx.obj['VERBOSE']:
+        click.echo('Radio statistics cleared.')
+    lora.close()
+
+
 if __name__ == '__main__':
     cli()

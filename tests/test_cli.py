@@ -369,3 +369,35 @@ def test_send_receive_json(runner, mock_rak811):
     assert ('"snr": 27') in result.output
     assert ('"len": 4') in result.output
     assert ('"data": "65666768"') in result.output
+
+
+def test_radio_status(runner, mock_rak811):
+    p = PropertyMock(return_value=(8, 0, 1, 0, 0, -48, 28))
+    type(mock_rak811.return_value).radio_status = p
+    result = runner.invoke(cli, ['radio-status'])
+    p.assert_called_once_with()
+    assert result.output == (
+        '8 0 1 0 0 -48 28\n'
+    )
+
+
+def test_radio_status_verbose(runner, mock_rak811):
+    p = PropertyMock(return_value=(8, 0, 1, 0, 0, -48, 28))
+    type(mock_rak811.return_value).radio_status = p
+    result = runner.invoke(cli, ['-v', 'radio-status'])
+    p.assert_called_once_with()
+    assert result.output == (
+        'TxSuccessCnt: 8\n'
+        'TxErrCnt: 0\n'
+        'RxSuccessCnt: 1\n'
+        'RxTimeOutCnt: 0\n'
+        'RxErrCnt: 0\n'
+        'RSSI: -48\n'
+        'SNR: 28\n'
+    )
+
+
+def test_clear_radio_status(runner, mock_rak811):
+    result = runner.invoke(cli, ['-v', 'clear-radio-status'])
+    mock_rak811.return_value.clear_radio_status.assert_called_once()
+    assert result.output == 'Radio statistics cleared.\n'
