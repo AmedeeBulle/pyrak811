@@ -12,10 +12,10 @@ The command-line interface exposes all API calls to the command line.
 Commands currently implemented:
 - System commands
 - LoRaWan commands
+- Radio
 
 Not implemented yet:
 - LoraP2P
-- Radio
 - Peripheral
 
 ## Installation
@@ -72,24 +72,26 @@ Options:
   --help         Show this message and exit.
 
 Commands:
-  abp-info    Get ABP info.
-  band        Get/Set LoRaWan region.
-  dr          Get/set next send data rate.
-  get-config  Get LoraWan configuration.
-  hard-reset  Hardware reset of the module.
-  join-abp    Join the configured network in ABP mode.
-  join-otaa   Join the configured network in OTAA mode.
-  link-cnt    Get up & downlink counters.
-  mode        Get/Set mode to LoRaWan or LoRaP2P.
-  recv-ex     RSSI & SNR report on receive.
-  reload      Set LoRaWan or LoRaP2P configurations to default.
-  reset       Reset Module or LoRaWan stack.
-  send        Send LoRaWan message and check for downlink.
-  set-config  Set LoraWAN configuration.
-  signal      Get (RSSI,SNR) from latest received packet.
-  sleep       Enter sleep mode.
-  version     Get module version.
-  wake-up     Wake up.
+  abp-info            Get ABP info.
+  band                Get/Set LoRaWan region.
+  clear-radio-status  Clear radio statistics.
+  dr                  Get/set next send data rate.
+  get-config          Get LoraWan configuration.
+  hard-reset          Hardware reset of the module.
+  join-abp            Join the configured network in ABP mode.
+  join-otaa           Join the configured network in OTAA mode.
+  link-cnt            Get up & downlink counters.
+  mode                Get/Set mode to LoRaWan or LoRaP2P.
+  radio-status        Get radio statistics.
+  recv-ex             RSSI & SNR report on receive.
+  reload              Set LoRaWan or LoRaP2P configurations to default.
+  reset               Reset Module or LoRaWan stack.
+  send                Send LoRaWan message and check for downlink.
+  set-config          Set LoraWAN configuration.
+  signal              Get (RSSI,SNR) from latest received packet.
+  sleep               Enter sleep mode.
+  version             Get module version.
+  wake-up             Wake up.
 ```
 
 Session example:
