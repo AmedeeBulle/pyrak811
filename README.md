@@ -89,7 +89,7 @@ Commands:
   signal      Get (RSSI,SNR) from latest received packet.
   sleep       Enter sleep mode.
   version     Get module version.
-  wake-up     Enter sleep mode.
+  wake-up     Wake up.
 ```
 
 Session example:

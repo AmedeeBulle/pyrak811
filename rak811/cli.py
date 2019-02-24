@@ -120,7 +120,7 @@ def sleep(ctx):
 @cli.command(name='wake-up')
 @click.pass_context
 def wake_up(ctx):
-    """Enter sleep mode."""
+    """Wake up."""
     lora = Rak811()
     lora.wake_up()
     if ctx.obj['VERBOSE']:
