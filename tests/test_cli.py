@@ -123,6 +123,14 @@ def test_set_config(runner, mock_rak811):
     assert result.output == 'LoRaWan parameters set\n'
 
 
+def test_set_config_invalid(runner, mock_rak811):
+    mock_rak811.return_value.set_config.side_effect = Rak811ResponseError(-1)
+    result = runner.invoke(cli, ['-v', 'set-config', 'dr=0', 'adr=out'])
+    mock_rak811.return_value.set_config.assert_called_once_with(dr='0',
+                                                                adr='out')
+    assert result.output == 'RAK811 response error -1: Invalid argument\n'
+
+
 def test_set_config_nokv(runner, mock_rak811):
     result = runner.invoke(cli, ['-v', 'set-config', 'dr:0'])
     assert 'dr:0 is not a valid Key=Value parameter' in result.output
@@ -138,6 +146,13 @@ def test_get_config(runner, mock_rak811):
     result = runner.invoke(cli, ['-v', 'get-config', 'dr'])
     mock_rak811.return_value.get_config.assert_called_once()
     assert result.output == '5\n'
+
+
+def test_get_config_error(runner, mock_rak811):
+    mock_rak811.return_value.get_config.side_effect = Rak811ResponseError(-1)
+    result = runner.invoke(cli, ['-v', 'get-config', 'nwks_key'])
+    mock_rak811.return_value.get_config.assert_called_once()
+    assert result.output == 'RAK811 response error -1: Invalid argument\n'
 
 
 def test_join_otaa(runner, mock_rak811):
@@ -223,6 +238,24 @@ def test_abp_info(runner, mock_rak811):
         '9annnnnnnnnnnnnnnnnnnnnnnnnnnnnn '
         '0baaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
         '\n'
+    )
+
+
+def test_abp_info_verbose(runner, mock_rak811):
+    p = PropertyMock(return_value=(
+        '13',
+        '26dddddd',
+        '9annnnnnnnnnnnnnnnnnnnnnnnnnnnnn',
+        '0baaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+    ))
+    type(mock_rak811.return_value).abp_info = p
+    result = runner.invoke(cli, ['-v', 'abp-info'])
+    p.assert_called_once_with()
+    assert result.output == (
+        'NwkId: 13\n'
+        'DevAddr: 26dddddd\n'
+        'Nwkskey: 9annnnnnnnnnnnnnnnnnnnnnnnnnnnnn\n'
+        'Appskey: 0baaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n'
     )
 
 
