@@ -18,40 +18,56 @@ Not implemented yet:
 - LoraP2P
 - Peripheral
 
-## Installation
-### Requirements
+## Requirements
 - A Raspberry Pi!
 - A RAK811 LoRa module ([PiSupply IoT LoRa Node pHAT for Raspberry Pi ](https://uk.pi-supply.com/products/iot-lora-node-phat-for-raspberry-pi))
-- On the Raspberry Pi the hardware serial port must be enabled and the serial console disabled (use `raspi-config`);
-- The user running the application must be in the `dialout` and `gpio` groups.
+- On the Raspberry Pi the hardware serial port must be enabled and the serial console disabled (use `raspi-config`)
+- The user running the application must be in the `dialout` and `gpio` groups (this is the default for the `pi` user)
 
-### Library
-#### From PyPI
+## Install the rak811 package
+The package is installed from PyPI:
 ```
-# Create a virtualenv (optional)
-python3 -m virtualenv -p python3 venv
-source venv/bin/activate
-# Install the package -- this will pull the dependencies
-pip install rak811
+sudo pip3 install rak811
 ```
 
-#### From GitHub
+The `pip3` command is part of the `python3-pip` package. If it is missing on your system, run:
 ```
-# Clone this repository
-git clone https://github.com/AmedeeBulle/pyrak811.git
-cd rak811
-# Create a virtualenv (optional)
-python3 -m virtualenv -p python3 venv
-source venv/bin/activate
-# Install the package -- this will pull the dependencies
-pip install .
+sudo apt-get install python3-pip
 ```
 
 ## Usage
+### Quick start with The Things Network
+#### Register your device
+Register you device on [TheThingsNetwork](https://www.thethingsnetwork.org) using the unique id of your RAK811 module (Device EUI).  
+You can retrieve your Device EUI with the following command:
+```
+rak811 get-config dev_eui
+```
+#### Hello World
+Send your first LoRaWan message wit the following python code snippet:  
+(The App EUI and App Key are copied verbatim from the TTN console)
+```
+#!/usr/bin/env python3
+from rak811 import Mode, Rak811
+
+lora = Rak811()
+lora.hard_reset()
+lora.mode = Mode.LoRaWan
+lora.band = 'EU868'
+lora.set_config(app_eui='70B3D5xxxxxxxxxx',
+                app_key='xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+lora.join_otaa()
+lora.dr = 5
+lora.send('Hello world')
+lora.close()
+```
+Your first message should appear on the TTN console!
+
+### Next steps
 See the [example directory on GitHub](https://github.com/AmedeeBulle/rak811/tree/master/examples):
 - `api_demo.py`: demo most of the API calls
-- `otaa.py` example
-- `abp.py` example
+- `otaa.py`: OTAA example
+- `abp.py`: ABP example
 
 To run the examples, first copy the `ttn_secrets_template.py` to `ttn_secrets.py` and enter your LoRaWan [TheThingsNetwork](https://www.thethingsnetwork.org) keys.
 
