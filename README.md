@@ -41,8 +41,11 @@ sudo apt-get install python3-pip
 Register you device on [TheThingsNetwork](https://www.thethingsnetwork.org) using the unique id of your RAK811 module (Device EUI).  
 You can retrieve your Device EUI with the following command:
 ```
+rak811 hard-reset
 rak811 get-config dev_eui
 ```
+_Note_: the `rak811 hard-reset` command is only needed once after (re)booting your Raspberry Pi to activate the module.
+
 #### Hello World
 Send your first LoRaWan message wit the following python code snippet:  
 (The App EUI and App Key are copied verbatim from the TTN console)
@@ -71,7 +74,7 @@ See the [example directory on GitHub](https://github.com/AmedeeBulle/rak811/tree
 
 To run the examples, first copy the `ttn_secrets_template.py` to `ttn_secrets.py` and enter your LoRaWan [TheThingsNetwork](https://www.thethingsnetwork.org) keys.
 
-Note: you do not need to `hard_reset` the module each time you run a script.
+_Note_: you do not need to `hard_reset` the module each time you run a script.
 However you must do it the first time after a (re)boot to activate the module.
 
 ## Command-line interface
@@ -133,3 +136,4 @@ RSSI: -56
 SNR: 31
 Data: 123456
 ```
+_Note_: for your first session after boot, you will need to do a `hard-reset` instead of a `reset lora` command to activate the module.
