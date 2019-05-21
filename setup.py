@@ -47,7 +47,7 @@ setup(
     packages=find_packages(),
     python_requires='>=3.5',
     install_requires=[
-        'click',
+        'click>=7.0',
         'pyserial',
         'RPi.GPIO; platform_machine=="armv7l" or platform_machine=="armv6l"'
     ],
