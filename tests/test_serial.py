@@ -149,6 +149,17 @@ def test_get_response(mock_serial):
     assert rs.get_response() == 'OK'
     rs.close()
 
+    # Handle non-ASCII characters
+    emulate_rak_input(mock_serial, 1, [
+        (0, b'Non ASCII: \xde\xad\xbe\xef\r\n'),
+        (0.5, b'\r\n'),
+        (0, b'\r\n'),
+        (0, b'OK\r\n'),
+    ])
+    rs = Rak811Serial()
+    assert rs.get_response() == 'OK'
+    rs.close()
+
     # Response timeout
     emulate_rak_input(mock_serial, 1, [
     ])

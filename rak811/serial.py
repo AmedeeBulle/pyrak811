@@ -108,7 +108,11 @@ class Rak811Serial(object):
                 # Not a timeout; process data stream
                 with self._cv_serial:
                     while True:
-                        line = line.decode('ascii').rstrip(EOL)
+                        try:
+                            line = line.decode('ascii').rstrip(EOL)
+                        except UnicodeDecodeError:
+                            # Wrong speed or port not configured properly
+                            line = '?'
                         if match(r'^(OK|ERROR|at+)', line):
                             self._read_buffer.append(line)
                         sleep(0.1)
