@@ -67,7 +67,7 @@ lora.close()
 Your first message should appear on the TTN console!
 
 ### Next steps
-See the [example directory on GitHub](https://github.com/AmedeeBulle/rak811/tree/master/examples):
+See the [example directory on GitHub](https://github.com/AmedeeBulle/pyrak811/tree/master/examples):
 - `api_demo.py`: demo most of the API calls
 - `otaa.py`: OTAA example
 - `abp.py`: ABP example
