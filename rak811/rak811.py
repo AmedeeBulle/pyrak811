@@ -138,6 +138,7 @@ class Rak811ResponseError(Rak811Error):
             self.strerror = ERROR_MESSAGE[self.errno]
         else:
             self.strerror = ERROR_MESSAGE[ErrorCode.UNKNOWN_ERR]
+        super().__init__(('[Errno {}] {}').format(self.errno, self.strerror))
 
 
 class Rak811EventError(Rak811Error):
@@ -160,6 +161,7 @@ class Rak811EventError(Rak811Error):
             self.strerror = EVENT_MESSAGE[self.errno]
         else:
             self.strerror = EVENT_MESSAGE[EventCode.UNKNOWN]
+        super().__init__(('[Errno {}] {}').format(self.errno, self.strerror))
 
 
 class Rak811(object):
