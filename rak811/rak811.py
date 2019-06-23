@@ -523,6 +523,133 @@ class Rak811(object):
         else:
             return self._downlink.pop(0)
 
+    """ LoraP2P commands."""
+
+    @property
+    def rf_config(self):
+        """Get LoraP2P configuration.
+
+        Return a dictionary.
+        """
+        config = tuple(self._int(i)
+                       for i in self._send_command('rf_config').split(','))
+        return {
+            'freq': config[0] / 1000 / 1000,
+            'sf': config[1],
+            'bw': config[2],
+            'cr': config[3],
+            'prlen': config[4],
+            'pwr': config[5]
+        }
+
+    @rf_config.setter
+    def rf_config(self, config):
+        """Set LoraWan P2P RF configuration parameters.
+
+        Parameters are specified a key/value pairs, default are used for
+        missing parameters.
+
+        E.g.:
+            rf_config = {
+                'freq': 868.700,
+                'sf': 7,
+                'bw': 0
+            }
+
+        The module saves parameters to flash, it is not necessary to set
+        values for each session.
+
+        The following parameters can be set, defaults are RAK811 defaults
+            freq: frequency in Mhz, range 860.000-929.900 Mhz (868.100)
+            sf: spread factor, range 6-12 (12)
+            bw: band width, values 0:125KHz, 1:250KHz, 2:500KHz (0)
+            cr: coding rate, values 1:4/5, 2:4/6, 3:4/7, 4:4/8 (1)
+            prlen: preamble len, range 8-65536 (8)
+            pwr: transmit power, range 5,20 (20)
+        """
+        base_config = {
+            'freq': 868.100,
+            'sf': 12,
+            'bw': 0,
+            'cr': 1,
+            'prlen': 8,
+            'pwr': 20
+        }
+        base_config.update(config)
+        self._send_command(
+            'rf_config={0},{1},{2},{3},{4},{5}'.format(
+                int(base_config['freq'] * 1000 * 1000),
+                base_config['sf'],
+                base_config['bw'],
+                base_config['cr'],
+                base_config['prlen'],
+                base_config['pwr']
+            )
+        )
+
+    def txc(self, data, cnt=1, interval=60):
+        """Send LoraP2P message.
+
+        Send data using the pre-set RF parameters.
+        For RF testing cnt can be specified to send data multiple time.
+        The module will stop sending messages after cnt messages or whent it
+        receives a tx_stop command.
+        The method returns after the first message has been sent.
+
+        Parameters:
+            data: data to be sent. If the datatype is bytes it will be send
+                as such. Strings will be converted to bytes.
+            cnt: send message cnt times
+            interval: when sending multiple times, interval in seconds
+            beween each message.
+
+        """
+        if type(data) is not bytes:
+            data = (bytes)(data, 'utf-8')
+        data = hexlify(data).decode('ascii')
+
+        self._send_command('txc=' + ','.join((
+            str(cnt),
+            str(interval * 1000),
+            data
+        )))
+
+        # Process events
+        events = self._get_events()
+        # Check for errors
+        for event in events:
+            status = event.split(',')[0]
+            status = self._int(status)
+            if status != EventCode.P2PTX_COMPLETE:
+                raise Rak811EventError(status)
+
+    def rxc(self, report_en=1):
+        """Set module in LoraP2P receive mode.
+
+        Module is put in receive mode until an rx_stop command is issued.
+        Method will return immediately after the command is acknowledged (it
+        does not wait for data)
+
+        Parameter:
+            report_en: set to 1 by default. Can be set to 0 for RF testing
+            (documentation is not clear about this)
+        """
+        self._send_command('rxc=' + str(report_en))
+
+    def tx_stop(self):
+        """Stop LoraP2P TX.
+
+        Stop LoraP2P transmission; radio will switch to sleep mode.
+        """
+        self._send_command('tx_stop')
+
+    def rx_stop(self):
+        """Stop LoraP2P RX.
+
+        Stop LoraP2P reception; radio will switch to sleep mode.
+        """
+        self._send_command('rx_stop')
+
     """Radio commands."""
 
     @property
