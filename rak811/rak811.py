@@ -20,9 +20,10 @@ from binascii import hexlify
 from enum import IntEnum
 from time import sleep
 
-from rak811.exception import Rak811Error
-from rak811.serial import Rak811Serial
 from RPi import GPIO
+
+from .exception import Rak811Error
+from .serial import Rak811Serial, Rak811TimeoutError
 
 RESET_BCM_PORT = 17
 RESET_DELAY = 0.01
@@ -464,6 +465,34 @@ class Rak811(object):
             }
         )
 
+    def _process_events(self, timeout=None):
+        """Process module event queue.
+
+        Process event queue looking for incoming (downlink) messages. Raise
+        errors when unexpected events are encountered.
+
+        Parameter:
+            timeout: maximum time to wait for event
+
+        """
+        events = self._get_events(timeout)
+        # Check for downlink
+        for event in events:
+            # Format: <status >,<port>[,<rssi>][,<snr>],<len>[,<data>]
+            event_items = event.split(',')
+            status = event_items.pop(0)
+            status = self._int(status)
+            if status == EventCode.RECV_DATA:
+                self._add_downlink(event_items)
+        # Check for errors
+        for event in events:
+            status = event.split(',')[0]
+            status = self._int(status)
+            if status not in (EventCode.RECV_DATA,
+                              EventCode.TX_COMFIRMED,
+                              EventCode.TX_UNCOMFIRMED):
+                raise Rak811EventError(status)
+
     def send(self, data, confirm=False, port=1):
         """Send LoRaWan message.
 
@@ -485,23 +514,7 @@ class Rak811(object):
         )))
 
         # Process events
-        events = self._get_events()
-        # Check for downlink
-        for event in events:
-            # Format: <status >,<port>[,<rssi>][,<snr>],<len>[,<data>]
-            event_items = event.split(',')
-            status = event_items.pop(0)
-            status = self._int(status)
-            if status == EventCode.RECV_DATA:
-                self._add_downlink(event_items)
-        # Check for errors
-        for event in events:
-            status = event.split(',')[0]
-            status = self._int(status)
-            if status not in (EventCode.RECV_DATA,
-                              EventCode.TX_COMFIRMED,
-                              EventCode.TX_UNCOMFIRMED):
-                raise Rak811EventError(status)
+        self._process_events()
 
     @property
     def nb_downlinks(self):
@@ -649,6 +662,20 @@ class Rak811(object):
         Stop LoraP2P reception; radio will switch to sleep mode.
         """
         self._send_command('rx_stop')
+
+    def rx_get(self, timeout):
+        """Get LoraP2P message.
+
+        This is a blocking call: wait until we receive a message or we reach a
+        timeout.
+
+        The downlink receive buffer is populated, actual data is retrieved with
+        get_downlink().
+        """
+        try:
+            self._process_events(timeout)
+        except Rak811TimeoutError:
+            pass
 
     """Radio commands."""
 

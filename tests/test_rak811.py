@@ -455,6 +455,23 @@ def test_rx_stop(mock_send, lora):
     mock_send.assert_called_once_with('rx_stop')
 
 
+@patch.object(Rak811, '_get_events', return_value=[
+    '0,0,4,65666768',
+])
+def test_rx_get(mock_events, lora):
+    """Test rx_get."""
+    lora.rx_get(10)
+    mock_events.assert_called_once()
+    assert lora.nb_downlinks == 1
+    assert lora.get_downlink() == {
+        'port': 0,
+        'rssi': 0,
+        'snr': 0,
+        'len': 4,
+        'data': '65666768',
+    }
+
+
 @patch.object(Rak811, '_send_command', return_value=('8,0,1,0,0,-48,28'))
 def test_radio_status(mock_send, lora):
     """Test radio_status command."""
