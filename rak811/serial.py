@@ -142,15 +142,18 @@ class Rak811Serial(object):
             response = self._read_buffer.pop(0)
         return response
 
-    def get_events(self):
+    def get_events(self, timeout=None):
         """Get events from module.
 
         This is a blocking call: it will return a list of events or raise
         Rak811TimeoutError if no event line is received in time.
         """
+        if timeout is None:
+            timeout = self._event_timeout
+
         with self._cv_serial:
             while len(self._read_buffer) == 0:
-                success = self._cv_serial.wait(self._event_timeout)
+                success = self._cv_serial.wait(timeout)
                 if not success:
                     raise Rak811TimeoutError('Timeout while waiting for event')
             event = self._read_buffer
