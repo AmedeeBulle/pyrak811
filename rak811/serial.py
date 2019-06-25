@@ -123,15 +123,18 @@ class Rak811Serial(object):
                     if len(self._read_buffer) > 0:
                         self._cv_serial.notify()
 
-    def get_response(self):
+    def get_response(self, timeout=None):
         """Get response from module.
 
         This is a blocking call: it will return a response line or raise
         Rak811TimeoutError if a response line is not received in time.
         """
+        if timeout is None:
+            timeout = self._response_timeout
+
         with self._cv_serial:
             while len(self._read_buffer) == 0:
-                success = self._cv_serial.wait(self._response_timeout)
+                success = self._cv_serial.wait(timeout)
                 if not success:
                     raise Rak811TimeoutError(
                         'Timeout while waiting for response'
