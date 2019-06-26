@@ -52,7 +52,7 @@ try:
             print('Received', lora.get_downlink()['data'])
 
         sleep(60)
-except:  # noqa
+except:  # noqa: E722
     pass
 
 print('Cleaning up')

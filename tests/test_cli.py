@@ -8,9 +8,10 @@ from pytest import fixture
 # Ignore RPi.GPIO
 p = patch.dict('sys.modules', {'RPi': Mock()})
 p.start()
-from rak811 import Rak811EventError, Rak811ResponseError, Rak811TimeoutError # noqa
-from rak811.cli import cli # noqa
-from rak811.rak811 import Mode, RecvEx, Reset # noqa
+from rak811 import Rak811EventError, Rak811ResponseError, \
+        Rak811TimeoutError  # noqa: F402
+from rak811.cli import cli  # noqa: F402
+from rak811.rak811 import Mode, RecvEx, Reset  # noqa: F402
 
 
 @fixture

@@ -7,8 +7,8 @@ from serial import EIGHTBITS
 # Ignore RPi.GPIO
 p = patch.dict('sys.modules', {'RPi': Mock()})
 p.start()
-from rak811.serial import BAUDRATE, PORT, TIMEOUT # noqa
-from rak811.serial import Rak811Serial, Rak811TimeoutError # noqa
+from rak811.serial import BAUDRATE, PORT, TIMEOUT  # noqa: E402, I100
+from rak811.serial import Rak811Serial, Rak811TimeoutError  # noqa: E402
 
 
 @patch('rak811.serial.Serial')
