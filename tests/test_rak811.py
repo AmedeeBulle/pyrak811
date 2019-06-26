@@ -14,6 +14,7 @@ from rak811 import Rak811, Rak811EventError, \
         Rak811ResponseError  # noqa: E402
 from rak811.rak811 import Mode, RecvEx, Reset  # noqa: E402
 from rak811.rak811 import Rak811Serial  # noqa: E402
+from rak811.serial import Rak811TimeoutError  # noqa: E402
 
 
 @fixture
@@ -435,6 +436,17 @@ def test_txc(mock_send, mock_events, lora):
     mock_events.assert_called_once()
 
 
+@patch.object(Rak811, '_get_events', return_value=['5,0,0'])
+@patch.object(Rak811, '_send_command')
+def test_txc_error(mock_send, mock_events, lora):
+    """Test LoraP2P send with error."""
+    with raises(Rak811EventError,
+                match='5'):
+        lora.txc('Hello')
+    mock_send.assert_called_once_with('txc=1,60000,48656c6c6f')
+    mock_events.assert_called_once()
+
+
 @patch.object(Rak811, '_send_command')
 def test_rxc(mock_send, lora):
     """Test LoraP2P RXC."""
@@ -471,6 +483,16 @@ def test_rx_get(mock_events, lora):
         'len': 4,
         'data': '65666768',
     }
+
+
+@patch.object(Rak811, '_get_events')
+def test_rx_get_no_data(mock_events, lora):
+    """Test rx_get with no data."""
+    mock_events.side_effect = Rak811TimeoutError()
+    lora.rx_get(10)
+    mock_events.assert_called_once()
+    assert lora.nb_downlinks == 0
+    assert lora.get_downlink() is None
 
 
 @patch.object(Rak811, '_send_command', return_value=('8,0,1,0,0,-48,28'))
