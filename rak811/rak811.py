@@ -538,8 +538,7 @@ class Rak811(object):
 
     """ LoraP2P commands."""
 
-    @property
-    def rf_config(self):
+    def _get_rf_config(self):
         """Get LoraP2P configuration.
 
         Return a dictionary.
@@ -554,6 +553,14 @@ class Rak811(object):
             'prlen': config[4],
             'pwr': config[5]
         }
+
+    @property
+    def rf_config(self):
+        """Get LoraP2P configuration.
+
+        Return a dictionary.
+        """
+        return self._get_rf_config()
 
     @rf_config.setter
     def rf_config(self, config):
@@ -572,7 +579,9 @@ class Rak811(object):
         The module saves parameters to flash, it is not necessary to set
         values for each session.
 
-        The following parameters can be set, defaults are RAK811 defaults
+        The following parameters can be set; only specified parameters are
+        changed, others are kept to their previous value. Values between
+        parentheses are RAK defaults.
             freq: frequency in Mhz, range 860.000-929.900 Mhz (868.100)
             sf: spread factor, range 6-12 (12)
             bw: band width, values 0:125KHz, 1:250KHz, 2:500KHz (0)
@@ -580,14 +589,7 @@ class Rak811(object):
             prlen: preamble len, range 8-65536 (8)
             pwr: transmit power, range 5,20 (20)
         """
-        base_config = {
-            'freq': 868.100,
-            'sf': 12,
-            'bw': 0,
-            'cr': 1,
-            'prlen': 8,
-            'pwr': 20
-        }
+        base_config = self._get_rf_config()
         base_config.update(config)
         self._send_command(
             'rf_config={0},{1},{2},{3},{4},{5}'.format(

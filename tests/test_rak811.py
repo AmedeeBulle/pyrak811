@@ -381,38 +381,6 @@ def test_get_send_receive_no_recv_ex(mock_send, mock_events, lora):
     }
 
 
-@patch.object(Rak811, '_send_command')
-def test_set_rf_config_default(mock_send, lora):
-    """Test RF config setter."""
-    lora.rf_config = {}
-    mock_send.assert_called_once_with('rf_config=868100000,12,0,1,8,20')
-
-
-@patch.object(Rak811, '_send_command')
-def test_set_rf_config_partial(mock_send, lora):
-    """Test RF config setter."""
-    lora.rf_config = {
-        'freq': 868.700,
-        'sf': 7,
-        'bw': 0
-    }
-    mock_send.assert_called_once_with('rf_config=868700000,7,0,1,8,20')
-
-
-@patch.object(Rak811, '_send_command')
-def test_set_rf_config_complete(mock_send, lora):
-    """Test RF config setter."""
-    lora.rf_config = {
-        'freq': 868.700,
-        'sf': 7,
-        'bw': 1,
-        'cr': 3,
-        'prlen': 4,
-        'pwr': 5
-    }
-    mock_send.assert_called_once_with('rf_config=868700000,7,1,3,4,5')
-
-
 @patch.object(Rak811, '_send_command', return_value='868700000,7,1,3,4,5')
 def test_get_rf_config(mock_send, lora):
     """Test config getter."""
@@ -425,6 +393,65 @@ def test_get_rf_config(mock_send, lora):
         'pwr': 5
     }
     mock_send.assert_called_once_with('rf_config')
+
+
+@patch.object(Rak811, '_get_rf_config', return_value={
+    'freq': 868.100,
+    'sf': 12,
+    'bw': 0,
+    'cr': 1,
+    'prlen': 8,
+    'pwr': 20
+})
+@patch.object(Rak811, '_send_command')
+def test_set_rf_config_default(mock_send, mock_rf_config, lora):
+    """Test RF config setter (No parameters)."""
+    lora.rf_config = {}
+    mock_rf_config.assert_called_once()
+    mock_send.assert_called_once_with('rf_config=868100000,12,0,1,8,20')
+
+
+@patch.object(Rak811, '_get_rf_config', return_value={
+    'freq': 868.100,
+    'sf': 12,
+    'bw': 1,
+    'cr': 1,
+    'prlen': 8,
+    'pwr': 20
+})
+@patch.object(Rak811, '_send_command')
+def test_set_rf_config_partial(mock_send, mock_rf_config, lora):
+    """Test RF config setter (Partial input)."""
+    lora.rf_config = {
+        'freq': 868.700,
+        'sf': 7,
+        'bw': 0
+    }
+    mock_rf_config.assert_called_once()
+    mock_send.assert_called_once_with('rf_config=868700000,7,0,1,8,20')
+
+
+@patch.object(Rak811, '_get_rf_config', return_value={
+    'freq': 868.100,
+    'sf': 12,
+    'bw': 0,
+    'cr': 1,
+    'prlen': 8,
+    'pwr': 20
+})
+@patch.object(Rak811, '_send_command')
+def test_set_rf_config_complete(mock_send, mock_rf_config, lora):
+    """Test RF config setter."""
+    lora.rf_config = {
+        'freq': 868.700,
+        'sf': 7,
+        'bw': 1,
+        'cr': 3,
+        'prlen': 4,
+        'pwr': 5
+    }
+    mock_rf_config.assert_called_once()
+    mock_send.assert_called_once_with('rf_config=868700000,7,1,3,4,5')
 
 
 @patch.object(Rak811, '_get_events', return_value=['9,0,0'])
