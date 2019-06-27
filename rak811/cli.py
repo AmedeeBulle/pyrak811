@@ -436,6 +436,82 @@ def send(ctx, port, confirm, binary, data, json):
 
 
 @cli.command()
+@click.option(
+    '--freq',
+    required=False,
+    type=click.FloatRange(min=860.000, max=929.900, clamp=False),
+    help='frequency in MHz (860.000-929.900)'
+)
+@click.option(
+    '--sf',
+    required=False,
+    type=click.IntRange(min=6, max=12, clamp=False),
+    help='strength factor (6-12)'
+)
+@click.option(
+    '--bw',
+    required=False,
+    type=click.IntRange(min=0, max=2, clamp=False),
+    help='bandwidth (0:125KHz, 1:250KHz, 2:500KHz)'
+)
+@click.option(
+    '--cr',
+    required=False,
+    type=click.IntRange(min=1, max=4, clamp=False),
+    help='coding rate (1:4/5, 2:4/6, 3:4/7, 4:4/8)'
+)
+@click.option(
+    '--prlen',
+    required=False,
+    type=click.IntRange(min=8, max=65535, clamp=False),
+    help='preamble length default (8-65535)'
+)
+@click.option(
+    '--pwr',
+    required=False,
+    type=click.IntRange(min=5, max=20, clamp=False),
+    help='Tx power (5-20)'
+)
+@click.pass_context
+def rf_config(ctx, **kwargs):
+    """Get/set LoraP2P configuration.
+
+    Without option, returns:
+        frequency, sf, bw, cr, prlen, pwr
+    Otherwhise set rf_config
+    """
+    lora = Rak811()
+
+    config = {}
+    for k, v in kwargs.items():
+        if v is not None:
+            config[k] = v
+    if config == {}:
+        # No parameters: returns rc_config
+        config = lora.rf_config
+        if ctx.obj['VERBOSE']:
+            click.echo('Frequency: {}'.format(config['freq']))
+            click.echo('SF: {}'.format(config['sf']))
+            click.echo('BW: {}'.format(config['bw']))
+            click.echo('CR: {}'.format(config['cr']))
+            click.echo('PrLen: {}'.format(config['prlen']))
+            click.echo('Power: {}'.format(config['pwr']))
+        else:
+            click.echo('{} {} {} {} {} {}'.format(
+                config['freq'], config['sf'], config['bw'], config['cr'],
+                config['prlen'], config['pwr']
+            ))
+    else:
+        # At least a parameter, set rc_config
+        lora.rf_config = config
+        if ctx.obj['VERBOSE']:
+            click.echo('rf_config set: ' + ', '.join('{}={}'.format(k, v) for
+                                                     k, v in config.items()))
+
+    lora.close()
+
+
+@cli.command()
 @click.pass_context
 def radio_status(ctx):
     """Get radio statistics.

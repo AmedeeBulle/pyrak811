@@ -372,6 +372,81 @@ def test_send_receive_json(runner, mock_rak811):
     assert ('"data": "65666768"') in result.output
 
 
+def test_set_rf_config_one(runner, mock_rak811):
+    p = PropertyMock()
+    type(mock_rak811.return_value).rf_config = p
+    result = runner.invoke(cli, ['-v', 'rf-config', '--sf', '8'])
+    p.assert_called_once_with({
+        'sf': 8
+    })
+    assert result.output == 'rf_config set: sf=8\n'
+
+
+def test_set_rf_config_all(runner, mock_rak811):
+    p = PropertyMock()
+    type(mock_rak811.return_value).rf_config = p
+    result = runner.invoke(cli, [
+        '-v', 'rf-config',
+        '--freq', '868.200',
+        '--sf', '8',
+        '--bw', '1',
+        '--cr', '2',
+        '--prlen', '16',
+        '--pwr', '8'
+    ])
+    p.assert_called_once_with({
+        'freq': 868.200,
+        'sf': 8,
+        'bw': 1,
+        'cr': 2,
+        'prlen': 16,
+        'pwr': 8
+    })
+    assert('freq=868.2') in result.output
+    assert('sf=8') in result.output
+    assert('bw=1') in result.output
+    assert('cr=2') in result.output
+    assert('prlen=16') in result.output
+    assert('pwr=8') in result.output
+
+
+def test_get_rf_config(runner, mock_rak811):
+    p = PropertyMock(return_value={
+        'freq': 868.200,
+        'sf': 8,
+        'bw': 1,
+        'cr': 2,
+        'prlen': 16,
+        'pwr': 8
+    })
+    type(mock_rak811.return_value).rf_config = p
+    result = runner.invoke(cli, ['rf-config'])
+    p.assert_called_once_with()
+    assert result.output == '868.2 8 1 2 16 8\n'
+
+
+def test_get_rf_config_verbose(runner, mock_rak811):
+    p = PropertyMock(return_value={
+        'freq': 868.200,
+        'sf': 8,
+        'bw': 1,
+        'cr': 2,
+        'prlen': 16,
+        'pwr': 8
+    })
+    type(mock_rak811.return_value).rf_config = p
+    result = runner.invoke(cli, ['-v', 'rf-config'])
+    p.assert_called_once_with()
+    assert result.output == (
+        'Frequency: 868.2\n'
+        'SF: 8\n'
+        'BW: 1\n'
+        'CR: 2\n'
+        'PrLen: 16\n'
+        'Power: 8\n'
+    )
+
+
 def test_radio_status(runner, mock_rak811):
     p = PropertyMock(return_value=(8, 0, 1, 0, 0, -48, 28))
     type(mock_rak811.return_value).radio_status = p
