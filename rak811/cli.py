@@ -26,23 +26,33 @@ from rak811 import Rak811
 from rak811 import Rak811Error
 from rak811 import Rak811EventError, Rak811ResponseError, Rak811TimeoutError
 
-# Valid configuration keys
-CONFIG_KEYS = ('dev_addr', 'dev_eui', 'app_eui', 'app_key', 'nwks_key',
-               'apps_key', 'tx_power', 'pwr_level', 'adr', 'dr', 'public_net',
-               'rx_delay1', 'ch_list', 'ch_mask', 'max_chs', 'rx2',
-               'join_cnt', 'nbtrans', 'retrans', 'class', 'duty')
+# Valid configuration keys for LoRaWan
+LW_CONFIG_KEYS = ('dev_addr', 'dev_eui', 'app_eui', 'app_key', 'nwks_key',
+                  'apps_key', 'tx_power', 'pwr_level', 'adr', 'dr',
+                  'public_net', 'rx_delay1', 'ch_list', 'ch_mask', 'max_chs',
+                  'rx2', 'join_cnt', 'nbtrans', 'retrans', 'class', 'duty')
+
+# Valid configuration keys for LoRaP2P
+P2P_CONFIG_KEYS = {
+    'freq': click.FloatRange(min=860.000, max=929.900, clamp=False),
+    'sf': click.IntRange(min=6, max=12, clamp=False),
+    'bw': click.IntRange(min=0, max=2, clamp=False),
+    'cr': click.IntRange(min=1, max=4, clamp=False),
+    'prlen': click.IntRange(min=8, max=65535, clamp=False),
+    'pwr': click.IntRange(min=5, max=20, clamp=False)
+}
 
 
-class KeyValueParamType(click.ParamType):
-    """Basic KEY=VALUE pair parameter type."""
+class KeyValueParamTypeLW(click.ParamType):
+    """Basic KEY=VALUE pair parameter type for LoRaWan."""
 
-    name = 'key-value'
+    name = 'key-value-lorawan'
 
     def convert(self, value, param, ctx):
         try:
             (k, v) = value.split('=')
             k = k.lower()
-            if k not in CONFIG_KEYS:
+            if k not in LW_CONFIG_KEYS:
                 self.fail('{0} is not a valid config key'.format(k),
                           param,
                           ctx)
@@ -51,6 +61,27 @@ class KeyValueParamType(click.ParamType):
             self.fail('{0} is not a valid Key=Value parameter'.format(value),
                       param,
                       ctx)
+
+
+class KeyValueParamTypeP2P(click.ParamType):
+    """Basic KEY=VALUE pair parameter type for LoRaP2P."""
+
+    name = 'key-value-p2p'
+
+    def convert(self, value, param, ctx):
+        try:
+            (k, v) = value.split('=')
+            k = k.lower()
+        except ValueError:
+            self.fail('{0} is not a valid Key=Value parameter'.format(value),
+                      param,
+                      ctx)
+        if k not in P2P_CONFIG_KEYS:
+            self.fail('{0} is not a valid config key'.format(k),
+                      param,
+                      ctx)
+        v = P2P_CONFIG_KEYS[k].convert(v, param, ctx)
+        return (k, v)
 
 
 def print_exception(e):
@@ -236,7 +267,7 @@ def band(ctx, band):
     'key_values',
     metavar='KEY=VALUE...',
     required=True,
-    type=KeyValueParamType(),
+    type=KeyValueParamTypeLW(),
     nargs=-1
 )
 @click.pass_context
@@ -262,7 +293,7 @@ def set_config(ctx, key_values):
 @click.argument(
     'key',
     required=True,
-    type=click.Choice(CONFIG_KEYS)
+    type=click.Choice(LW_CONFIG_KEYS)
 )
 @click.pass_context
 def get_config(ctx, key):
@@ -324,7 +355,7 @@ def signal(ctx):
 )
 @click.pass_context
 def dr(ctx, dr):
-    """Get/set next send data rate."""
+    """Get/Set next send data rate."""
     lora = Rak811()
     if dr is None:
         click.echo(lora.dr)
@@ -436,56 +467,34 @@ def send(ctx, port, confirm, binary, data, json):
 
 
 @cli.command()
-@click.option(
-    '--freq',
+@click.argument(
+    'key_values',
+    metavar='KEY=VALUE...',
     required=False,
-    type=click.FloatRange(min=860.000, max=929.900, clamp=False),
-    help='frequency in MHz (860.000-929.900)'
-)
-@click.option(
-    '--sf',
-    required=False,
-    type=click.IntRange(min=6, max=12, clamp=False),
-    help='strength factor (6-12)'
-)
-@click.option(
-    '--bw',
-    required=False,
-    type=click.IntRange(min=0, max=2, clamp=False),
-    help='bandwidth (0:125KHz, 1:250KHz, 2:500KHz)'
-)
-@click.option(
-    '--cr',
-    required=False,
-    type=click.IntRange(min=1, max=4, clamp=False),
-    help='coding rate (1:4/5, 2:4/6, 3:4/7, 4:4/8)'
-)
-@click.option(
-    '--prlen',
-    required=False,
-    type=click.IntRange(min=8, max=65535, clamp=False),
-    help='preamble length default (8-65535)'
-)
-@click.option(
-    '--pwr',
-    required=False,
-    type=click.IntRange(min=5, max=20, clamp=False),
-    help='Tx power (5-20)'
+    type=KeyValueParamTypeP2P(),
+    nargs=-1
 )
 @click.pass_context
-def rf_config(ctx, **kwargs):
-    """Get/set LoraP2P configuration.
+def rf_config(ctx, key_values):
+    """Get/Set LoraP2P configuration.
 
-    Without option, returns:
+    \b
+    Without argument, returns:
         frequency, sf, bw, cr, prlen, pwr
-    Otherwhise set rf_config
+
+    \b
+    Otherwhise set rf_config, Arguments are specified as KEY=VALUE pairs:
+        freq: frequency in MHz (860.000-929.900)
+        sf: strength factor (6-12)
+        bw: bandwidth (0:125KHz, 1:250KHz, 2:500KHz)
+        cr: coding rate (1:4/5, 2:4/6, 3:4/7, 4:4/8)
+        prlen: preamble length default (8-65535)
+        pwr: Tx power (5-20)
+    E.g.: rf-config freq=860.100 sf=7 pwr=16
+
     """
     lora = Rak811()
-
-    config = {}
-    for k, v in kwargs.items():
-        if v is not None:
-            config[k] = v
+    config = dict(key_values)
     if config == {}:
         # No parameters: returns rc_config
         config = lora.rf_config

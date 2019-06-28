@@ -372,10 +372,26 @@ def test_send_receive_json(runner, mock_rak811):
     assert ('"data": "65666768"') in result.output
 
 
+def test_set_rf_config_invalid_parameter(runner, mock_rak811):
+    result = runner.invoke(cli, ['rf-config', 'tx=8'])
+    assert (
+        'Error: Invalid value for "KEY=VALUE...": '
+        'tx is not a valid config key'
+    ) in result.output
+
+
+def test_set_rf_config_invalid_range(runner, mock_rak811):
+    result = runner.invoke(cli, ['rf-config', 'sf=1'])
+    assert (
+        'Error: Invalid value for "KEY=VALUE...": '
+        '1 is not in the valid range of 6 to 12.\n'
+    ) in result.output
+
+
 def test_set_rf_config_one(runner, mock_rak811):
     p = PropertyMock()
     type(mock_rak811.return_value).rf_config = p
-    result = runner.invoke(cli, ['-v', 'rf-config', '--sf', '8'])
+    result = runner.invoke(cli, ['-v', 'rf-config', 'sf=8'])
     p.assert_called_once_with({
         'sf': 8
     })
@@ -387,12 +403,12 @@ def test_set_rf_config_all(runner, mock_rak811):
     type(mock_rak811.return_value).rf_config = p
     result = runner.invoke(cli, [
         '-v', 'rf-config',
-        '--freq', '868.200',
-        '--sf', '8',
-        '--bw', '1',
-        '--cr', '2',
-        '--prlen', '16',
-        '--pwr', '8'
+        'freq=868.200',
+        'sf=8',
+        'bw=1',
+        'cr=2',
+        'prlen=16',
+        'pwr=8'
     ])
     p.assert_called_once_with({
         'freq': 868.200,
