@@ -521,6 +521,119 @@ def rf_config(ctx, key_values):
 
 
 @cli.command()
+@click.option(
+    '--cnt',
+    default=1,
+    type=click.IntRange(1, 65535),
+    help='tx counts (1-65535)'
+)
+@click.option(
+    '--interval',
+    default=60,
+    type=click.IntRange(1, 3600),
+    help=' tx interval (1-3600)'
+)
+@click.option(
+    '--binary',
+    is_flag=True,
+    help='Data is binary (hex encoded)'
+)
+@click.argument(
+    'data',
+    required=True
+)
+@click.pass_context
+def txc(ctx, cnt, interval, binary, data):
+    """Send LoRaP2P message."""
+    if binary:
+        try:
+            data = bytes.fromhex(data)
+        except ValueError:
+            click.echo('Invalid binary data')
+            return
+    lora = Rak811()
+    try:
+        lora.txc(data, cnt=cnt, interval=interval)
+    except Rak811Error as e:
+        print_exception(e)
+        lora.close()
+        return
+
+    if ctx.obj['VERBOSE']:
+        click.echo('Message sent.')
+    lora.close()
+
+
+@cli.command()
+@click.pass_context
+def rxc(ctx):
+    """Set module in LoraP2P receive mode."""
+    lora = Rak811()
+    lora.rxc()
+    if ctx.obj['VERBOSE']:
+        click.echo('Module set in receive mode.')
+    lora.close()
+
+
+@cli.command()
+@click.pass_context
+def tx_stop(ctx):
+    """Stop LoraP2P TX."""
+    lora = Rak811()
+    lora.tx_stop()
+    if ctx.obj['VERBOSE']:
+        click.echo('LoraP2P TX stopped.')
+    lora.close()
+
+
+@cli.command()
+@click.pass_context
+def rx_stop(ctx):
+    """Stop LoraP2P RX."""
+    lora = Rak811()
+    lora.rx_stop()
+    if ctx.obj['VERBOSE']:
+        click.echo('LoraP2P RX stopped.')
+    lora.close()
+
+
+@cli.command()
+@click.argument(
+    'timeout',
+    required=False,
+    default=60,
+    type=click.INT
+)
+@click.option(
+    '--json',
+    is_flag=True,
+    help='Output message in JSON format'
+)
+@click.pass_context
+def rx_get(ctx, timeout, json):
+    """Get LoraP2P message."""
+    lora = Rak811()
+    lora.rx_get(timeout)
+    rxs = lora.get_downlink()
+    if rxs:
+        rx = rxs[0]
+        if json:
+            click.echo(dumps(rx, indent=4))
+        elif ctx.obj['VERBOSE']:
+            click.echo('Message received:')
+            click.echo('Port: {}'.format(rx['port']))
+            if rx['rssi']:
+                click.echo('RSSI: {}'.format(rx['rssi']))
+                click.echo('SNR: {}'.format(rx['snr']))
+            click.echo('Data: {}'.format(rx['data']))
+        else:
+            click.echo(rx['data'])
+    elif ctx.obj['VERBOSE']:
+        click.echo('No message available.')
+    lora.close()
+
+
+@cli.command()
 @click.pass_context
 def radio_status(ctx):
     """Get radio statistics.

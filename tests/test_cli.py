@@ -463,6 +463,55 @@ def test_get_rf_config_verbose(runner, mock_rak811):
     )
 
 
+def test_txc(runner, mock_rak811):
+    result = runner.invoke(cli, ['-v', 'txc', 'Hello'])
+    mock_rak811.return_value.txc.assert_called_once_with(
+        data='Hello',
+        cnt=1,
+        interval=60
+    )
+    assert 'Message sent.' in result.output
+
+
+def test_rxc(runner, mock_rak811):
+    result = runner.invoke(cli, ['-v', 'rxc'])
+    mock_rak811.return_value.rxc.assert_called_once()
+    assert 'Module set in receive mode.' in result.output
+
+
+def test_tx_stop(runner, mock_rak811):
+    result = runner.invoke(cli, ['-v', 'tx-stop'])
+    mock_rak811.return_value.tx_stop.assert_called_once()
+    assert 'LoraP2P TX stopped.' in result.output
+
+
+def test_rx_stop(runner, mock_rak811):
+    result = runner.invoke(cli, ['-v', 'rx-stop'])
+    mock_rak811.return_value.rx_stop.assert_called_once()
+    assert 'LoraP2P RX stopped.' in result.output
+
+
+def test_rx_get_no_message(runner, mock_rak811):
+    mock_rak811.return_value.get_downlink.return_value = []
+    result = runner.invoke(cli, ['-v', 'rx-get', '0'])
+    mock_rak811.return_value.rx_get.assert_called_once_with(0)
+    assert 'No message available.' in result.output
+
+
+def test_rx_get_message_json(runner, mock_rak811):
+    mock_rak811.return_value.get_downlink.return_value = [{
+        'port': 0,
+        'rssi': 0,
+        'snr': 0,
+        'len': 4,
+        'data': '65666768',
+    }]
+    result = runner.invoke(cli, ['rx-get', '--json', '0'])
+    mock_rak811.return_value.rx_get.assert_called_once_with(0)
+    assert '"port": 0' in result.output
+    assert '"data": "65666768"' in result.output
+
+
 def test_radio_status(runner, mock_rak811):
     p = PropertyMock(return_value=(8, 0, 1, 0, 0, -48, 28))
     type(mock_rak811.return_value).radio_status = p
