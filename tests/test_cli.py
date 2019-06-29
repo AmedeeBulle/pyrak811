@@ -296,6 +296,11 @@ def test_send_binary(runner, mock_rak811):
     assert 'No downlink available.' in result.output
 
 
+def test_send_binary_invalid(runner, mock_rak811):
+    result = runner.invoke(cli, ['-v', 'send', '--binary', '010202xx'])
+    assert result.output == 'Invalid binary data\n'
+
+
 def test_send_error(runner, mock_rak811):
     mock_rak811.return_value.send.side_effect = Rak811EventError(5)
     mock_rak811.return_value.get_downlink.return_value = []
@@ -377,6 +382,14 @@ def test_set_rf_config_invalid_parameter(runner, mock_rak811):
     assert (
         'Error: Invalid value for "KEY=VALUE...": '
         'tx is not a valid config key'
+    ) in result.output
+
+
+def test_set_rf_config_invalid_kv(runner, mock_rak811):
+    result = runner.invoke(cli, ['rf-config', 'sf:8'])
+    assert (
+        'Error: Invalid value for "KEY=VALUE...": '
+        'sf:8 is not a valid Key=Value parameter'
     ) in result.output
 
 
@@ -470,32 +483,84 @@ def test_txc(runner, mock_rak811):
         cnt=1,
         interval=60
     )
-    assert 'Message sent.' in result.output
+    assert result.output == 'Message sent.\n'
+
+
+def test_txc_binary(runner, mock_rak811):
+    result = runner.invoke(cli, ['-v', 'txc', '--binary', '01020211'])
+    mock_rak811.return_value.txc.assert_called_once_with(
+        data=bytes.fromhex('01020211'),
+        cnt=1,
+        interval=60
+    )
+    assert result.output == 'Message sent.\n'
+
+
+def test_txc_binary_invalid(runner, mock_rak811):
+    result = runner.invoke(cli, ['-v', 'txc', '--binary', '010202xx'])
+    assert result.output == 'Invalid binary data\n'
+
+
+def test_txc_error(runner, mock_rak811):
+    mock_rak811.return_value.txc.side_effect = Rak811EventError(5)
+    result = runner.invoke(cli, ['-v', 'txc', 'Hello'])
+    mock_rak811.return_value.txc.assert_called_once_with(
+        data='Hello',
+        cnt=1,
+        interval=60
+    )
+    assert result.output == 'RAK811 event error 5: Tx timeout\n'
 
 
 def test_rxc(runner, mock_rak811):
     result = runner.invoke(cli, ['-v', 'rxc'])
     mock_rak811.return_value.rxc.assert_called_once()
-    assert 'Module set in receive mode.' in result.output
+    assert result.output == 'Module set in receive mode.\n'
 
 
 def test_tx_stop(runner, mock_rak811):
     result = runner.invoke(cli, ['-v', 'tx-stop'])
     mock_rak811.return_value.tx_stop.assert_called_once()
-    assert 'LoraP2P TX stopped.' in result.output
+    assert result.output == 'LoraP2P TX stopped.\n'
 
 
 def test_rx_stop(runner, mock_rak811):
     result = runner.invoke(cli, ['-v', 'rx-stop'])
     mock_rak811.return_value.rx_stop.assert_called_once()
-    assert 'LoraP2P RX stopped.' in result.output
+    assert result.output == 'LoraP2P RX stopped.\n'
 
 
 def test_rx_get_no_message(runner, mock_rak811):
     mock_rak811.return_value.get_downlink.return_value = []
     result = runner.invoke(cli, ['-v', 'rx-get', '0'])
     mock_rak811.return_value.rx_get.assert_called_once_with(0)
-    assert 'No message available.' in result.output
+    assert result.output == 'No message available.\n'
+
+
+def test_rx_get_message(runner, mock_rak811):
+    mock_rak811.return_value.get_downlink.return_value = [{
+        'port': 0,
+        'rssi': 0,
+        'snr': 0,
+        'len': 4,
+        'data': '65666768',
+    }]
+    result = runner.invoke(cli, ['rx-get', '0'])
+    mock_rak811.return_value.rx_get.assert_called_once_with(0)
+    assert result.output == '65666768\n'
+
+
+def test_rx_get_message_verbose(runner, mock_rak811):
+    mock_rak811.return_value.get_downlink.return_value = [{
+        'port': 0,
+        'rssi': 0,
+        'snr': 0,
+        'len': 4,
+        'data': '65666768',
+    }]
+    result = runner.invoke(cli, ['-v', 'rx-get', '0'])
+    mock_rak811.return_value.rx_get.assert_called_once_with(0)
+    assert 'Data: 65666768' in result.output
 
 
 def test_rx_get_message_json(runner, mock_rak811):
