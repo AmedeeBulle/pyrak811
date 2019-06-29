@@ -553,8 +553,8 @@ def test_rx_get_message(runner, mock_rak811):
     type(mock_rak811.return_value).nb_downlinks = p
     mock_rak811.return_value.get_downlink.return_value = {
         'port': 0,
-        'rssi': 0,
-        'snr': 0,
+        'rssi': -34,
+        'snr': 27,
         'len': 4,
         'data': '65666768',
     }
@@ -568,13 +568,15 @@ def test_rx_get_message_verbose(runner, mock_rak811):
     type(mock_rak811.return_value).nb_downlinks = p
     mock_rak811.return_value.get_downlink.return_value = {
         'port': 0,
-        'rssi': 0,
-        'snr': 0,
+        'rssi': -34,
+        'snr': 27,
         'len': 4,
         'data': '65666768',
     }
     result = runner.invoke(cli, ['-v', 'rx-get', '0'])
     mock_rak811.return_value.rx_get.assert_called_once_with(0)
+    assert 'RSSI: -34' in result.output
+    assert 'SNR: 27' in result.output
     assert 'Data: 65666768' in result.output
 
 

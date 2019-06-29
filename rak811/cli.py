@@ -619,6 +619,9 @@ def rx_get(ctx, timeout, json):
             click.echo(dumps(rx, indent=4))
         elif ctx.obj['VERBOSE']:
             click.echo('Message received:')
+            if rx['rssi']:
+                click.echo('RSSI: {}'.format(rx['rssi']))
+                click.echo('SNR: {}'.format(rx['snr']))
             click.echo('Data: {}'.format(rx['data']))
         else:
             click.echo(rx['data'])
