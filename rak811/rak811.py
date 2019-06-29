@@ -232,13 +232,14 @@ class Rak811(object):
 
         return response
 
-    def _get_events(self):
+    def _get_events(self, timeout=None):
         """Get events from the RAK811 module.
 
         This is a "blocking" call: it will either return a list of events or
         raise a Rack811TimeoutError.
         """
-        return [i[len(RESPONSE_EVENT):] for i in self._serial.get_events()]
+        return [i[len(RESPONSE_EVENT):] for i in
+                self._serial.get_events(timeout)]
 
     """System commands."""
 
@@ -609,7 +610,7 @@ class Rak811(object):
         For RF testing cnt can be specified to send data multiple time.
         The module will stop sending messages after cnt messages or whent it
         receives a tx_stop command.
-        The method returns after the first message has been sent.
+        The method returns after all messages have been sent.
 
         Parameters:
             data: data to be sent. If the datatype is bytes it will be send
@@ -630,7 +631,7 @@ class Rak811(object):
         )))
 
         # Process events
-        events = self._get_events()
+        events = self._get_events((cnt * (interval + 10)) - interval)
         # Check for errors
         for event in events:
             status = event.split(',')[0]
