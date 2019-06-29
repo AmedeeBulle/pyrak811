@@ -447,9 +447,8 @@ def send(ctx, port, confirm, binary, data, json):
 
     if ctx.obj['VERBOSE']:
         click.echo('Message sent.')
-    downlinks = lora.get_downlink()
-    if downlinks:
-        downlink = downlinks[0]
+    if lora.nb_downlinks:
+        downlink = lora.get_downlink()
         if json:
             click.echo(dumps(downlink, indent=4))
         elif ctx.obj['VERBOSE']:
@@ -614,9 +613,8 @@ def rx_get(ctx, timeout, json):
     """Get LoraP2P message."""
     lora = Rak811()
     lora.rx_get(timeout)
-    rxs = lora.get_downlink()
-    if rxs:
-        rx = rxs[0]
+    if lora.nb_downlinks:
+        rx = lora.get_downlink()
         if json:
             click.echo(dumps(rx, indent=4))
         elif ctx.obj['VERBOSE']:
