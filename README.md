@@ -12,10 +12,10 @@ The command-line interface exposes all API calls to the command line.
 Commands currently implemented:
 - System commands
 - LoRaWan commands
+- LoraP2P commands
 - Radio
 
 Not implemented yet:
-- LoraP2P
 - Peripheral
 
 ## Requirements
@@ -34,6 +34,8 @@ The `pip3` command is part of the `python3-pip` package. If it is missing on you
 ```
 sudo apt-get install python3-pip
 ```
+
+[PiSupply](https://uk.pi-supply.com/) provides [detailed instructions](https://learn.pi-supply.com/make/getting-started-with-the-raspberry-pi-lora-node-phat/) for configuring your Raspberry Pi.
 
 ## Usage
 ### Quick start with The Things Network
@@ -71,6 +73,7 @@ See the [example directory on GitHub](https://github.com/AmedeeBulle/pyrak811/tr
 - `api_demo.py`: demo most of the API calls
 - `otaa.py`: OTAA example
 - `abp.py`: ABP example
+- `p2p.sh`: P2P example based on the command-line interface (see below)
 
 To run the examples, first copy the `ttn_secrets_template.py` to `ttn_secrets.py` and enter your LoRaWan [TheThingsNetwork](https://www.thethingsnetwork.org) keys.
 
