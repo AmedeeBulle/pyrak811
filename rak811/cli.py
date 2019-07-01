@@ -449,6 +449,7 @@ def send(ctx, port, confirm, binary, data, json):
         click.echo('Message sent.')
     if lora.nb_downlinks:
         downlink = lora.get_downlink()
+        downlink['data'] = downlink['data'].hex()
         if json:
             click.echo(dumps(downlink, indent=4))
         elif ctx.obj['VERBOSE']:
@@ -615,6 +616,7 @@ def rx_get(ctx, timeout, json):
     lora.rx_get(timeout)
     if lora.nb_downlinks:
         rx = lora.get_downlink()
+        rx['data'] = rx['data'].hex()
         if json:
             click.echo(dumps(rx, indent=4))
         elif ctx.obj['VERBOSE']:

@@ -453,7 +453,10 @@ class Rak811(object):
             r_snr = 0
         r_len = self._int(event.pop(0))
         if r_len > 0:
-            r_data = event[0]
+            try:
+                r_data = bytes.fromhex(event[0])
+            except ValueError:
+                r_data = ''
         else:
             r_data = ''
         self._downlink.append(

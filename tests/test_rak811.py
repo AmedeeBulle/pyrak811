@@ -357,7 +357,7 @@ def test_get_send_receive(mock_send, mock_events, lora):
         'rssi': -34,
         'snr': 27,
         'len': 4,
-        'data': '65666768',
+        'data': bytes.fromhex('65666768'),
     }
 
 
@@ -377,7 +377,7 @@ def test_get_send_receive_no_recv_ex(mock_send, mock_events, lora):
         'rssi': 0,
         'snr': 0,
         'len': 4,
-        'data': '65666768',
+        'data': bytes.fromhex('65666768'),
     }
 
 
@@ -508,7 +508,7 @@ def test_rx_get(mock_events, lora):
         'rssi': 0,
         'snr': 0,
         'len': 4,
-        'data': '65666768',
+        'data': bytes.fromhex('65666768'),
     }
 
 

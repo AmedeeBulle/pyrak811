@@ -325,7 +325,7 @@ def test_send_receive_recv_tx(runner, mock_rak811):
         'rssi': -34,
         'snr': 27,
         'len': 4,
-        'data': '65666768',
+        'data': bytes.fromhex('65666768'),
     }
     result = runner.invoke(cli, ['-v', 'send', '--binary', '01020211'])
     mock_rak811.return_value.send.assert_called_once_with(
@@ -348,7 +348,7 @@ def test_send_receive(runner, mock_rak811):
         'rssi': 0,
         'snr': 0,
         'len': 4,
-        'data': '65666768',
+        'data': bytes.fromhex('65666768'),
     }
     result = runner.invoke(cli, ['-v', 'send', '--binary', '01020211'])
     mock_rak811.return_value.send.assert_called_once_with(
@@ -371,7 +371,7 @@ def test_send_receive_json(runner, mock_rak811):
         'rssi': -34,
         'snr': 27,
         'len': 4,
-        'data': '65666768',
+        'data': bytes.fromhex('65666768'),
     }
     result = runner.invoke(cli, ['-v', 'send', '--json',
                                  '--binary', '01020211'])
@@ -556,7 +556,7 @@ def test_rx_get_message(runner, mock_rak811):
         'rssi': -34,
         'snr': 27,
         'len': 4,
-        'data': '65666768',
+        'data': bytes.fromhex('65666768'),
     }
     result = runner.invoke(cli, ['rx-get', '0'])
     mock_rak811.return_value.rx_get.assert_called_once_with(0)
@@ -571,7 +571,7 @@ def test_rx_get_message_verbose(runner, mock_rak811):
         'rssi': -34,
         'snr': 27,
         'len': 4,
-        'data': '65666768',
+        'data': bytes.fromhex('65666768'),
     }
     result = runner.invoke(cli, ['-v', 'rx-get', '0'])
     mock_rak811.return_value.rx_get.assert_called_once_with(0)
@@ -588,7 +588,7 @@ def test_rx_get_message_json(runner, mock_rak811):
         'rssi': 0,
         'snr': 0,
         'len': 4,
-        'data': '65666768',
+        'data': bytes.fromhex('65666768'),
     }
     result = runner.invoke(cli, ['rx-get', '--json', '0'])
     mock_rak811.return_value.rx_get.assert_called_once_with(0)
