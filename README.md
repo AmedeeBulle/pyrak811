@@ -73,6 +73,7 @@ See the [example directory on GitHub](https://github.com/AmedeeBulle/pyrak811/tr
 - `api_demo.py`: demo most of the API calls
 - `otaa.py`: OTAA example
 - `abp.py`: ABP example
+- `p2p.py`: P2P example
 - `p2p.sh`: P2P example based on the command-line interface (see below)
 
 To run the examples, first copy the `ttn_secrets_template.py` to `ttn_secrets.py` and enter your LoRaWan [TheThingsNetwork](https://www.thethingsnetwork.org) keys.
