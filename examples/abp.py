@@ -50,7 +50,7 @@ try:
         lora.send(bytes.fromhex('0102{:04x}'.format(randint(0, 0x7FFF))))
 
         while lora.nb_downlinks:
-            print('Received', lora.get_downlink()['data'])
+            print('Received', lora.get_downlink()['data'].hex())
 
         sleep(60)
 except:  # noqa: E722
