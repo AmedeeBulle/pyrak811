@@ -103,6 +103,7 @@ def print_exception(e):
     is_flag=True,
     help='Verbose mode'
 )
+@click.version_option()
 @click.pass_context
 def cli(ctx, verbose):
     """Command line interface for the RAK811 module."""
