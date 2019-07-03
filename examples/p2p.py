@@ -59,7 +59,8 @@ try:
         # Set module in receive mode
         lora.rxc()
         # Loop until we reach the next send time
-        while time() < next_send:
+        # Don't enter loop for small wait times (<1 1 sec.)
+        while (time() + 1) < next_send:
             wait_time = next_send - time()
             print('Waiting on message for {:0.0f} seconds'.format(wait_time))
             # Note that you don't have to listen actively for capturing message
