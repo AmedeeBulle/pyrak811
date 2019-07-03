@@ -94,6 +94,13 @@ def test_send_command(lora):
                 match='Unexpected'):
         lora._send_command('mode=2')
 
+    # Events in response queue
+    lora._serial.get_response.side_effect = [
+        'at+recv=2,0,0',
+        'OK0'
+    ]
+    assert lora._send_command('dr') == '0'
+
 
 def test_get_events(lora):
     """Test _get_events."""

@@ -223,6 +223,10 @@ class Rak811(object):
         self._serial.send_command(command)
         response = self._serial.get_response()
 
+        # Ignore events received while waiting on command feedback
+        while response.startswith(RESPONSE_EVENT):
+            response = self._serial.get_response()
+
         if response.startswith(RESPONSE_OK):
             response = response[len(RESPONSE_OK):]
         elif response.startswith(RESPONSE_ERROR):
