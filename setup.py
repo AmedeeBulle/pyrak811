@@ -29,7 +29,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='rak811',
-    version='0.7.0rc3',
+    version='0.7.0',
     description='Interface for RAK811 LoRa module',
     long_description=long_description,
     long_description_content_type='text/markdown',
