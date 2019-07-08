@@ -38,6 +38,9 @@ lora.set_config(app_eui=APP_EUI,
 
 print('Joining')
 lora.join_otaa()
+# Note that DR is different from SF and depends on the region
+# See: https://docs.exploratory.engineering/lora/dr_sf/
+# Set Data Rate to 5 which is SF7/125kHz for EU868
 lora.dr = 5
 
 print('Sending packets every minute - Interrupt to cancel loop')

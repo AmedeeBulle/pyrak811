@@ -81,6 +81,10 @@ To run the examples, first copy the `ttn_secrets_template.py` to `ttn_secrets.py
 _Note_: you do not need to `hard_reset` the module each time you run a script.
 However you must do it the first time after a (re)boot to activate the module.
 
+### balenaCloud
+Sample code to use the library with [balenaCloud](https://www.balena.io/): [
+Basic RAK811 example with balenaCloud](https://github.com/AmedeeBulle/pyrak811-balena).
+
 ## Command-line interface
 The `rak811` command exposes all library calls to the command line:
 
