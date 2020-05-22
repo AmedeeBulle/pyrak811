@@ -6,7 +6,7 @@
 ## About
 RAK811 Python 3 library and command-line interface for use with the Raspberry Pi LoRa pHAT.
 
-The library exposes the AT commands as described in the [RAK811 Lora AT Command User Guide V1.5](http://docs.rakwireless.com/en/LoRa/RAK811/Software_Development/RAK811%C2%A0LoRa%C2%A0AT%C2%A0Command%C2%A0V1.5.pdf).  
+The library exposes the AT commands as described in the RAK811 Lora AT Command User Guide V1.4 found in the DOCS folder of this repository. 
 The command-line interface exposes all API calls to the command line.
 
 Commands currently implemented:
