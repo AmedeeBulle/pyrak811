@@ -324,7 +324,7 @@ class Rak811(object):
             tx_power: transmit power (in dBm -- deprecated, use pwr_level)
             pwr_level: transmit power (0-7 for EU868, region specific)
             adr: adr flag (on/off)
-            dr: data rate (0-7 for EU868, region specific)
+            dr: data rate (0-5 for EU868, region specific)
             public_net: public_net flag (on/off)
             rx_delay1: rx1 delay (0-65535 milliseconds)
             ch_list: channel list, see RAK documentation
