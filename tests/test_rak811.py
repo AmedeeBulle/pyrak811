@@ -11,7 +11,7 @@ from pytest import fixture, raises
 p = patch.dict('sys.modules', {'RPi': Mock()})
 p.start()
 from rak811 import Rak811, Rak811EventError, \
-        Rak811ResponseError  # noqa: E402
+    Rak811ResponseError  # noqa: E402
 from rak811.rak811 import Mode, RecvEx, Reset  # noqa: E402
 from rak811.rak811 import Rak811Serial  # noqa: E402
 from rak811.serial import Rak811TimeoutError  # noqa: E402

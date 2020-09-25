@@ -9,9 +9,9 @@ from pytest import fixture
 p = patch.dict('sys.modules', {'RPi': Mock()})
 p.start()
 from rak811 import Rak811EventError, Rak811ResponseError, \
-        Rak811TimeoutError  # noqa: F402
-from rak811.cli import cli  # noqa: F402
-from rak811.rak811 import Mode, RecvEx, Reset  # noqa: F402
+    Rak811TimeoutError  # noqa: E402
+from rak811.cli import cli  # noqa: E402
+from rak811.rak811 import Mode, RecvEx, Reset  # noqa: E402
 
 
 @fixture
@@ -390,7 +390,7 @@ def test_send_receive_json(runner, mock_rak811):
 def test_set_rf_config_invalid_parameter(runner, mock_rak811):
     result = runner.invoke(cli, ['rf-config', 'tx=8'])
     assert (
-        'Error: Invalid value for "KEY=VALUE...": '
+        "Error: Invalid value for 'KEY=VALUE...': "
         'tx is not a valid config key'
     ) in result.output
 
@@ -398,7 +398,7 @@ def test_set_rf_config_invalid_parameter(runner, mock_rak811):
 def test_set_rf_config_invalid_kv(runner, mock_rak811):
     result = runner.invoke(cli, ['rf-config', 'sf:8'])
     assert (
-        'Error: Invalid value for "KEY=VALUE...": '
+        "Error: Invalid value for 'KEY=VALUE...': "
         'sf:8 is not a valid Key=Value parameter'
     ) in result.output
 
@@ -406,7 +406,7 @@ def test_set_rf_config_invalid_kv(runner, mock_rak811):
 def test_set_rf_config_invalid_range(runner, mock_rak811):
     result = runner.invoke(cli, ['rf-config', 'sf=1'])
     assert (
-        'Error: Invalid value for "KEY=VALUE...": '
+        "Error: Invalid value for 'KEY=VALUE...': "
         '1 is not in the valid range of 6 to 12.\n'
     ) in result.output
 
