@@ -1,6 +1,6 @@
 """RAK811 serial communication layer.
 
-Copyright 2019 Philippe Vanhaesendonck
+Copyright 2019, 2021 Philippe Vanhaesendonck
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@ limitations under the License.
 
 SPDX-License-Identifier: Apache-2.0
 """
+from logging import getLogger
 from re import match
 from threading import Condition, Event, Thread
 from time import sleep
+from typing import List, Union
 
 from rak811.exception import Rak811Error
 from serial import Serial
@@ -32,14 +34,13 @@ BAUDRATE = 115200
 TIMEOUT = 2
 # Timeout for response and events
 # The RAK811 typically respond in less than 1.5 seconds
-RESPONSE_TIMEOUT = 5
-# Event wait time strongly depends on duty cycle, when sending often at high SF
-# the module will wait to respect the duty cycle.
-# In normal operation, 5 minutes should be more than enough.
-EVENT_TIMEOUT = 5 * 60
+READ_BUFFER_TIMEOUT = 5
 
 # Constants
 EOL = '\r\n'
+
+
+logger = getLogger(__name__)
 
 
 class Rak811TimeoutError(Rak811Error):
@@ -55,24 +56,22 @@ class Rak811Serial(object):
                  port=PORT,
                  baudrate=BAUDRATE,
                  timeout=TIMEOUT,
-                 response_timeout=RESPONSE_TIMEOUT,
-                 event_timeout=EVENT_TIMEOUT,
+                 read_buffer_timeout=READ_BUFFER_TIMEOUT,
+                 keep_untagged=False,
                  **kwargs):
         """Initialise class.
 
         The serial port is immediately opened and flushed.
         All parameters are optional and passed to Serial.
         """
-        self._read_buffer_timeout = response_timeout
-        self._event_timeout = event_timeout
+        self._read_buffer_timeout = read_buffer_timeout
         self._serial = Serial(port=port,
                               baudrate=baudrate,
                               timeout=timeout,
                               **kwargs)
         self._serial.reset_input_buffer()
 
-        self._response_timeout = response_timeout
-        self._event_timeout = event_timeout
+        self._keep_untagged = keep_untagged
 
         # Mutex
         self._cv_serial = Condition()
@@ -84,6 +83,7 @@ class Rak811Serial(object):
         self._read_thread.start()
 
         self._alive = True
+        logger.debug('Serial initialized')
 
     def close(self):
         """Release resources."""
@@ -114,7 +114,13 @@ class Rak811Serial(object):
                             # Wrong speed or port not configured properly
                             line = '?'
                         if match(r'^(OK|ERROR|at+)', line):
+                            logger.debug(f'Received: >{line}<')
                             self._read_buffer.append(line)
+                        elif self._keep_untagged:
+                            logger.debug(f'Received untagged: >{line}<')
+                            self._read_buffer.append(line)
+                        else:
+                            logger.debug(f'Ignoring untagged: >{line}<')
                         sleep(0.1)
                         if self._serial.in_waiting > 0:
                             line = self._serial.readline()
@@ -123,45 +129,41 @@ class Rak811Serial(object):
                     if len(self._read_buffer) > 0:
                         self._cv_serial.notify()
 
-    def get_response(self, timeout=None):
-        """Get response from module.
+    def receive(self, single: bool = True, timeout: int = None) -> Union[str, List[str]]:
+        """Receive data from module.
 
-        This is a blocking call: it will return a response line or raise
-        Rak811TimeoutError if a response line is not received in time.
+        This is a blocking call: it will data or raise Rak811TimeoutError if
+        nothing is received in time.
+
+        Args:
+            single (optional): Return single line of data when true, otherwise
+                all available lines are returned. Defaults to True.
+            timeout (optional): Time to wait for. Defaults to None.
+
+        Raises:
+            Rak811TimeoutError: No data received in time.
+
+        Returns:
+            Single line of data or list of lines.
         """
         if timeout is None:
-            timeout = self._response_timeout
+            timeout = self._read_buffer_timeout
 
         with self._cv_serial:
             while len(self._read_buffer) == 0:
                 success = self._cv_serial.wait(timeout)
                 if not success:
-                    raise Rak811TimeoutError(
-                        'Timeout while waiting for response'
-                    )
-            response = self._read_buffer.pop(0)
+                    raise Rak811TimeoutError('Timeout while waiting for data')
+            if single:
+                response = self._read_buffer.pop(0)
+            else:
+                response = self._read_buffer
+                self._read_buffer = []
         return response
-
-    def get_events(self, timeout=None):
-        """Get events from module.
-
-        This is a blocking call: it will return a list of events or raise
-        Rak811TimeoutError if no event line is received in time.
-        """
-        if timeout is None:
-            timeout = self._event_timeout
-
-        with self._cv_serial:
-            while len(self._read_buffer) == 0:
-                success = self._cv_serial.wait(timeout)
-                if not success:
-                    raise Rak811TimeoutError('Timeout while waiting for event')
-            event = self._read_buffer
-            self._read_buffer = []
-        return event
 
     def send_string(self, string):
         """Send string to the module."""
+        logger.debug(f"Sending: >{string.encode('unicode_escape').decode('utf-8')}<")
         self._serial.write((bytes)(string, 'utf-8'))
 
     def send_command(self, command):

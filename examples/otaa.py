@@ -3,7 +3,7 @@
 
 Minimalistic OTAA demo
 
-Copyright 2019 Philippe Vanhaesendonck
+Copyright 2019, 2021 Philippe Vanhaesendonck
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ from random import randint
 from sys import exit
 from time import sleep
 
-from rak811 import Mode, Rak811
+from rak811.rak811 import Mode, Rak811
 from ttn_secrets import APP_EUI, APP_KEY
 
 lora = Rak811()

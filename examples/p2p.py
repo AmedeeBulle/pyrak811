@@ -5,7 +5,7 @@ Send counter messages at random interval and listen the rest of the time.
 
 Start this script on 2 or more nodes an observe the packets flowing.
 
-Copyright 2019 Philippe Vanhaesendonck
+Copyright 2019, 2021 Philippe Vanhaesendonck
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ from random import randint
 from sys import exit
 from time import time
 
-from rak811 import Mode, Rak811
+from rak811.rak811 import Mode, Rak811
 
 # Send packet every P2P_BASE + (0..P2P_RANDOM) seconds
 P2P_BASE = 30

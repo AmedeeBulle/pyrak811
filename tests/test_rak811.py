@@ -10,10 +10,11 @@ from pytest import fixture, raises
 # Ignore RPi.GPIO
 p = patch.dict('sys.modules', {'RPi': Mock()})
 p.start()
-from rak811 import Rak811, Rak811EventError, \
-    Rak811ResponseError  # noqa: E402
 from rak811.rak811 import Mode, RecvEx, Reset  # noqa: E402
+from rak811.rak811 import Rak811, Rak811EventError, \
+    Rak811ResponseError  # noqa: E402
 from rak811.rak811 import Rak811Serial  # noqa: E402
+from rak811.rak811 import RESPONSE_TIMEOUT  # noqa: E402
 from rak811.serial import Rak811TimeoutError  # noqa: E402
 
 
@@ -35,7 +36,7 @@ def test_instantiate_default(mock_serial):
     lora = Rak811()
 
     assert isinstance(lora._serial, Rak811Serial)
-    mock_serial.assert_called_once_with()
+    mock_serial.assert_called_once_with(read_buffer_timeout=RESPONSE_TIMEOUT)
     lora.close()
     mock_serial.return_value.close.assert_called_once()
 
@@ -46,7 +47,11 @@ def test_instantiate_params(mock_serial):
     port = '/dev/ttyAMA0'
     timeout = 5
     lora = Rak811(port=port, timeout=timeout)
-    mock_serial.assert_called_once_with(port=port, timeout=timeout)
+    mock_serial.assert_called_once_with(
+        read_buffer_timeout=RESPONSE_TIMEOUT,
+        port=port,
+        timeout=timeout
+    )
     lora.close()
 
 
@@ -78,24 +83,24 @@ def test_send_string(lora):
 def test_send_command(lora):
     """Test _send_command."""
     # Successful command
-    lora._serial.get_response.return_value = 'OK0'
+    lora._serial.receive.return_value = 'OK0'
     assert lora._send_command('dr') == '0'
     lora._serial.send_command.assert_called_with('dr')
 
     # Error
-    lora._serial.get_response.return_value = 'ERROR-1'
+    lora._serial.receive.return_value = 'ERROR-1'
     with raises(Rak811ResponseError,
                 match='-1'):
         lora._send_command('mode=2')
 
     # Unknown error
-    lora._serial.get_response.return_value = 'Unexpected'
+    lora._serial.receive.return_value = 'Unexpected'
     with raises(Rak811ResponseError,
                 match='Unexpected'):
         lora._send_command('mode=2')
 
     # Events in response queue
-    lora._serial.get_response.side_effect = [
+    lora._serial.receive.side_effect = [
         'at+recv=2,0,0',
         'OK0'
     ]
@@ -105,7 +110,7 @@ def test_send_command(lora):
 def test_get_events(lora):
     """Test _get_events."""
     # Successful command
-    lora._serial.get_events.return_value = [
+    lora._serial.receive.return_value = [
         'at+recv=2,0,0',
         'at+recv=0,1,0,0,1,55',
     ]
@@ -117,7 +122,7 @@ def test_get_events(lora):
 """AT command API.
 
 For the sake of simplicity we mock Rak811.__send_command and
-Tack811._get_events, as these have already been tested.
+Rack811._get_events, as these have already been tested.
 """
 
 
@@ -292,18 +297,22 @@ def test_get_link_cnt(mock_send, lora):
 
 
 @patch.object(Rak811, '_send_command', return_value=(
+    # cSpell:disable
     '13,'
     '26dddddd,'
     '9annnnnnnnnnnnnnnnnnnnnnnnnnnnnn,'
     '0baaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+    # cSpell:enable
 ))
 def test_abp_info(mock_send, lora):
     """Test abp_info command."""
     assert lora.abp_info == (
+        # cSpell:disable
         '13',
         '26dddddd',
         '9annnnnnnnnnnnnnnnnnnnnnnnnnnnnn',
         '0baaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        # cSpell:enable
     )
     mock_send.assert_called_once_with('abp_info')
 

@@ -8,10 +8,10 @@ from pytest import fixture
 # Ignore RPi.GPIO
 p = patch.dict('sys.modules', {'RPi': Mock()})
 p.start()
-from rak811 import Rak811EventError, Rak811ResponseError, \
-    Rak811TimeoutError  # noqa: E402
 from rak811.cli import cli  # noqa: E402
 from rak811.rak811 import Mode, RecvEx, Reset  # noqa: E402
+from rak811.rak811 import Rak811EventError, Rak811ResponseError, \
+    Rak811TimeoutError  # noqa: E402
 
 
 @fixture
@@ -225,38 +225,46 @@ def test_link_cnt(runner, mock_rak811):
 
 def test_abp_info(runner, mock_rak811):
     p = PropertyMock(return_value=(
+        # cSpell:disable
         '13',
         '26dddddd',
         '9annnnnnnnnnnnnnnnnnnnnnnnnnnnnn',
         '0baaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        # cSpell:enable
     ))
     type(mock_rak811.return_value).abp_info = p
     result = runner.invoke(cli, ['abp-info'])
     p.assert_called_once_with()
     assert result.output == (
+        # cSpell:disable
         '13 '
         '26dddddd '
         '9annnnnnnnnnnnnnnnnnnnnnnnnnnnnn '
         '0baaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
         '\n'
+        # cSpell:enable
     )
 
 
 def test_abp_info_verbose(runner, mock_rak811):
     p = PropertyMock(return_value=(
+        # cSpell:disable
         '13',
         '26dddddd',
         '9annnnnnnnnnnnnnnnnnnnnnnnnnnnnn',
         '0baaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        # cSpell:enable
     ))
     type(mock_rak811.return_value).abp_info = p
     result = runner.invoke(cli, ['-v', 'abp-info'])
     p.assert_called_once_with()
     assert result.output == (
+        # cSpell:disable
         'NwkId: 13\n'
         'DevAddr: 26dddddd\n'
         'Nwkskey: 9annnnnnnnnnnnnnnnnnnnnnnnnnnnnn\n'
         'Appskey: 0baaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n'
+        # cSpell:enable
     )
 
 

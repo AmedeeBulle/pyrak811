@@ -3,7 +3,7 @@
 
 Simple demo to illustrate API usage
 
-Copyright 2019 Philippe Vanhaesendonck
+Copyright 2019, 2021 Philippe Vanhaesendonck
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ SPDX-License-Identifier: Apache-2.0
 from sys import exit
 from time import sleep
 
-from rak811 import Mode, RecvEx, Reset
-from rak811 import Rak811, Rak811ResponseError
+from rak811.rak811 import Mode, RecvEx, Reset
+from rak811.rak811 import Rak811, Rak811ResponseError
 from ttn_secrets import APP_EUI, APP_KEY
 
 config_keys = ('dev_addr', 'dev_eui', 'app_eui', 'app_key', 'nwks_key',

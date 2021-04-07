@@ -1,8 +1,8 @@
 """RAK811 CLI interface.
 
-Provides a command line interface for the RAK811 module.
+Provides a command line interface for the RAK811 module (Firmware V2.0).
 
-Copyright 2019 Philippe Vanhaesendonck
+Copyright 2019, 2021 Philippe Vanhaesendonck
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,12 +19,14 @@ limitations under the License.
 SPDX-License-Identifier: Apache-2.0
 """
 from json import dumps
+import logging
 
 import click
-from rak811 import Mode, RecvEx, Reset
-from rak811 import Rak811
-from rak811 import Rak811Error
-from rak811 import Rak811EventError, Rak811ResponseError, Rak811TimeoutError
+
+from .rak811 import Mode, RecvEx, Reset
+from .rak811 import Rak811
+from .rak811 import Rak811Error
+from .rak811 import Rak811EventError, Rak811ResponseError, Rak811TimeoutError
 
 # Valid configuration keys for LoRaWan
 LW_CONFIG_KEYS = ('dev_addr', 'dev_eui', 'app_eui', 'app_key', 'nwks_key',
@@ -103,12 +105,19 @@ def print_exception(e):
     is_flag=True,
     help='Verbose mode'
 )
+@click.option(
+    '-d',
+    '--debug',
+    is_flag=True,
+    help='Debug mode'
+)
 @click.version_option()
 @click.pass_context
-def cli(ctx, verbose):
+def cli(ctx, verbose, debug):
     """Command line interface for the RAK811 module."""
     ctx.ensure_object(dict)
     ctx.obj['VERBOSE'] = verbose
+    logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
 
 
 @cli.command(name='hard-reset')
@@ -484,7 +493,7 @@ def rf_config(ctx, key_values):
         frequency, sf, bw, cr, prlen, pwr
 
     \b
-    Otherwhise set rf_config, Arguments are specified as KEY=VALUE pairs:
+    Otherwise set rf_config, Arguments are specified as KEY=VALUE pairs:
         freq: frequency in MHz (860.000-929.900)
         sf: strength factor (6-12)
         bw: bandwidth (0:125KHz, 1:250KHz, 2:500KHz)

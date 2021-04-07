@@ -17,6 +17,7 @@ def test_instantiate_default(mock_serial):
 
     Check for basic initialisation and teardown of the serial interface.
     """
+    mock_serial.return_value.readline.return_value = b''
     rs = Rak811Serial()
     # Test default parameters are used
     mock_serial.assert_called_once_with(port=PORT,
@@ -35,6 +36,7 @@ def test_instantiate_default(mock_serial):
 @patch('rak811.serial.Serial')
 def test_instantiate_custom(mock_serial):
     """Test that Rak811Serial can be instantiated - custom parameters."""
+    mock_serial.return_value.readline.return_value = b''
     port = '/dev/ttyAMA0'
     timeout = 5
     bytesize = EIGHTBITS
@@ -52,6 +54,7 @@ def test_instantiate_custom(mock_serial):
 @patch('rak811.serial.Serial')
 def test_send_string(mock_serial):
     """Test Rak811Serial.send_string."""
+    mock_serial.return_value.readline.return_value = b''
     rs = Rak811Serial()
 
     rs.send_string('Hello world')
@@ -63,6 +66,7 @@ def test_send_string(mock_serial):
 @patch('rak811.serial.Serial')
 def test_send_command(mock_serial):
     """Test Rak811Serial.send_command."""
+    mock_serial.return_value.readline.return_value = b''
     rs = Rak811Serial()
 
     rs.send_command('RESET')
@@ -118,16 +122,16 @@ def emulate_rak_input(mock, timeout, data_in):
 
 
 @patch('rak811.serial.Serial')
-def test_get_response(mock_serial):
-    """Test Rak811Serial.get_response."""
+def test_receive_single(mock_serial):
+    """Test Rak811Serial.receive, single line."""
     # For response, first line is passed, others, if any are buffered.
     emulate_rak_input(mock_serial, 1, [
         (0, b'OK\r\n'),
         (0, b'OKok\r\n'),
     ])
     rs = Rak811Serial()
-    assert rs.get_response() == 'OK'
-    assert rs.get_response() == 'OKok'
+    assert rs.receive() == 'OK'
+    assert rs.receive() == 'OKok'
     rs.close()
 
     # Check for Errors
@@ -135,7 +139,7 @@ def test_get_response(mock_serial):
         (0, b'ERROR-1\r\n'),
     ])
     rs = Rak811Serial()
-    assert rs.get_response() == 'ERROR-1'
+    assert rs.receive() == 'ERROR-1'
     rs.close()
 
     # Noise is skipped
@@ -146,7 +150,17 @@ def test_get_response(mock_serial):
         (0, b'OK\r\n'),
     ])
     rs = Rak811Serial()
-    assert rs.get_response() == 'OK'
+    assert rs.receive() == 'OK'
+    rs.close()
+
+    # Noise is returned
+    emulate_rak_input(mock_serial, 1, [
+        (0, b'Welcome to RAK811\r\n'),
+        (0, b'OK\r\n'),
+    ])
+    rs = Rak811Serial(keep_untagged=True)
+    assert rs.receive() == 'Welcome to RAK811'
+    assert rs.receive() == 'OK'
     rs.close()
 
     # Handle non-ASCII characters
@@ -157,28 +171,28 @@ def test_get_response(mock_serial):
         (0, b'OK\r\n'),
     ])
     rs = Rak811Serial()
-    assert rs.get_response() == 'OK'
+    assert rs.receive() == 'OK'
     rs.close()
 
     # Response timeout
     emulate_rak_input(mock_serial, 1, [
     ])
-    rs = Rak811Serial(response_timeout=1)
+    rs = Rak811Serial(read_buffer_timeout=1)
     with raises(Rak811TimeoutError,
-                match='Timeout while waiting for response'):
-        rs.get_response()
+                match='Timeout while waiting for data'):
+        rs.receive()
     rs.close()
 
 
 @patch('rak811.serial.Serial')
-def test_get_events(mock_serial):
-    """Test Rak811Serial.get_events."""
+def test_receive_multi(mock_serial):
+    """Test Rak811Serial.receive, multiple lines."""
     # Single command
     emulate_rak_input(mock_serial, 1, [
         (0, b'at+recv=8,0,0\r\n'),
     ])
     rs = Rak811Serial()
-    event = rs.get_events()
+    event = rs.receive(single=False)
     assert len(event) == 1
     assert event.pop() == 'at+recv=8,0,0'
     rs.close()
@@ -190,7 +204,7 @@ def test_get_events(mock_serial):
         (0, b'at+recv=0,0,0\r\n'),
     ])
     rs = Rak811Serial()
-    event = rs.get_events()
+    event = rs.receive(single=False)
     assert len(event) == 2
     assert event.pop() == 'at+recv=0,0,0'
     assert event.pop() == 'at+recv=2,0,0'
@@ -199,10 +213,10 @@ def test_get_events(mock_serial):
     # Event timeout
     emulate_rak_input(mock_serial, 1, [
     ])
-    rs = Rak811Serial(event_timeout=1)
+    rs = Rak811Serial(read_buffer_timeout=1)
     with raises(Rak811TimeoutError,
-                match='Timeout while waiting for event'):
-        rs.get_events()
+                match='Timeout while waiting for data'):
+        rs.receive(single=False)
     rs.close()
 
 
@@ -219,8 +233,8 @@ def test_get_response_event(mock_serial):
         (0, b'at+recv=0,0,0\r\n'),
     ])
     rs = Rak811Serial()
-    assert rs.get_response() == 'OK'
-    event = rs.get_events()
+    assert rs.receive(single=True) == 'OK'
+    event = rs.receive(single=False)
     assert len(event) == 2
     assert event.pop() == 'at+recv=0,0,0'
     assert event.pop() == 'at+recv=2,0,0'
@@ -236,8 +250,8 @@ def test_get_response_event(mock_serial):
         (0, b'at+recv=0,0,0\r\n'),
     ])
     rs = Rak811Serial()
-    assert rs.get_response() == 'OK'
-    event = rs.get_events()
+    assert rs.receive(single=True) == 'OK'
+    event = rs.receive(single=False)
     assert len(event) == 2
     assert event.pop() == 'at+recv=0,0,0'
     assert event.pop() == 'at+recv=2,0,0'

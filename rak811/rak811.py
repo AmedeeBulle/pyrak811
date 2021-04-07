@@ -1,6 +1,6 @@
-"""Interface with the RAK811 module.
+"""Interface with the RAK811 module (Firmware V2.0).
 
-Copyright 2019 Philippe Vanhaesendonck
+Copyright 2019, 2021 Philippe Vanhaesendonck
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,6 +32,14 @@ RESPONSE_OK = 'OK'
 RESPONSE_ERROR = 'ERROR'
 RESPONSE_EVENT = 'at+recv='
 
+# Timeout for response and events
+# The RAK811 typically respond in less than 1.5 seconds
+RESPONSE_TIMEOUT = 5
+# Event wait time strongly depends on duty cycle, when sending often at high SF
+# the module will wait to respect the duty cycle.
+# In normal operation, 5 minutes should be more than enough.
+EVENT_TIMEOUT = 5 * 60
+
 
 # RAK811 error codes and associated messages
 class ErrorCode(IntEnum):
@@ -47,7 +55,7 @@ class ErrorCode(IntEnum):
     INTER_ERR = -8
     WR_CFG_ERR = -11
     RD_CFG_ERR = -12
-    TX_LEN_LIMITE_ERR = -13
+    TX_LEN_LIMIT_ERR = -13
     UNKNOWN_ERR = -20
 
 
@@ -62,7 +70,7 @@ ERROR_MESSAGE = {
     ErrorCode.INTER_ERR: 'Inter error',
     ErrorCode.WR_CFG_ERR: 'Write configuration error',
     ErrorCode.RD_CFG_ERR: 'Read configuration Error',
-    ErrorCode.TX_LEN_LIMITE_ERR: 'Transmit len limit error',
+    ErrorCode.TX_LEN_LIMIT_ERR: 'Transmit len limit error',
     ErrorCode.UNKNOWN_ERR: 'Unknown error',
 }
 
@@ -72,7 +80,7 @@ class EventCode(IntEnum):
 
     RECV_DATA = 0
     TX_COMFIRMED = 1
-    TX_UNCOMFIRMED = 2
+    TX_UNCONFIRMED = 2
     JOINED_SUCCESS = 3
     JOINED_FAILED = 4
     TX_TIMEOUT = 5
@@ -86,8 +94,8 @@ class EventCode(IntEnum):
 EVENT_MESSAGE = {
     EventCode.RECV_DATA: 'Received data',
     EventCode.TX_COMFIRMED: 'Tx confirmed',
-    EventCode.TX_UNCOMFIRMED: 'Tx unconfirmed',
-    EventCode.JOINED_SUCCESS: 'Join succeded',
+    EventCode.TX_UNCONFIRMED: 'Tx unconfirmed',
+    EventCode.JOINED_SUCCESS: 'Join succeeded',
     EventCode.JOINED_FAILED: 'Join failed',
     EventCode.TX_TIMEOUT: 'Tx timeout',
     EventCode.RX2_TIMEOUT: 'Rx2 timeout',
@@ -174,7 +182,12 @@ class Rak811(object):
         The serial port is immediately opened and flushed.
         All parameters are optional and passed to RackSerial.
         """
-        self._serial = Rak811Serial(**kwargs)
+        read_buffer_timeout = kwargs.pop('response_timeout', RESPONSE_TIMEOUT)
+        self._event_timeout = kwargs.pop('event_timeout', EVENT_TIMEOUT)
+        self._serial = Rak811Serial(
+            read_buffer_timeout=read_buffer_timeout,
+            **kwargs
+        )
         self._downlink = []
 
     def close(self):
@@ -221,11 +234,11 @@ class Rak811(object):
         Rack811TimeoutError will be raised.
         """
         self._serial.send_command(command)
-        response = self._serial.get_response()
+        response = self._serial.receive()
 
         # Ignore events received while waiting on command feedback
         while response.startswith(RESPONSE_EVENT):
-            response = self._serial.get_response()
+            response = self._serial.receive()
 
         if response.startswith(RESPONSE_OK):
             response = response[len(RESPONSE_OK):]
@@ -242,8 +255,11 @@ class Rak811(object):
         This is a "blocking" call: it will either return a list of events or
         raise a Rack811TimeoutError.
         """
+        if timeout is None:
+            timeout = self._event_timeout
+
         return [i[len(RESPONSE_EVENT):] for i in
-                self._serial.get_events(timeout)]
+                self._serial.receive(single=False, timeout=timeout)]
 
     """System commands."""
 
@@ -316,7 +332,7 @@ class Rak811(object):
         The following parameters are accepted by the module:
             dev_addr: device address (4 bytes hex number)
             dev_eui: device EUI (8 bytes hex number, default derived from the
-                MCU's UUID
+                MCU UUID
             app_eui: app EUI (8 bytes hex number)
             app_key: app key (16 bytes hex number)
             apps_key: application session key (16 bytes hex number)
@@ -498,7 +514,7 @@ class Rak811(object):
             status = self._int(status)
             if status not in (EventCode.RECV_DATA,
                               EventCode.TX_COMFIRMED,
-                              EventCode.TX_UNCOMFIRMED):
+                              EventCode.TX_UNCONFIRMED):
                 raise Rak811EventError(status)
 
     def send(self, data, confirm=False, port=1):
@@ -615,7 +631,7 @@ class Rak811(object):
 
         Send data using the pre-set RF parameters.
         For RF testing cnt can be specified to send data multiple time.
-        The module will stop sending messages after cnt messages or whent it
+        The module will stop sending messages after cnt messages or when it
         receives a tx_stop command.
         The method returns after all messages have been sent.
 
@@ -624,7 +640,7 @@ class Rak811(object):
                 as such. Strings will be converted to bytes.
             cnt: send message cnt times
             interval: when sending multiple times, interval in seconds
-            beween each message.
+            between each message.
 
         """
         if type(data) is not bytes:
