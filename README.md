@@ -1,57 +1,72 @@
 # RAK811 Python 3 library for Raspberry Pi
+
 [![Latest Version](https://img.shields.io/pypi/v/rak811.svg)](https://pypi.org/project/rak811/)
 [![Build Status](https://travis-ci.org/AmedeeBulle/pyrak811.svg?branch=master)](https://travis-ci.org/AmedeeBulle/pyrak811)
 [![codecov](https://codecov.io/gh/AmedeeBulle/pyrak811/branch/master/graph/badge.svg)](https://codecov.io/gh/AmedeeBulle/pyrak811)
 
 ## About
+
 RAK811 Python 3 library and command-line interface for use with the Raspberry Pi LoRa pHAT.
 
-The library exposes the AT commands as described in the RAK811 Lora AT Command User Guide V1.4 found in the DOCS folder of this repository. 
+The library exposes the AT commands as described in the RAK811 Lora AT Command User Guide V1.4 found in the DOCS folder of this repository.
 The command-line interface exposes all API calls to the command line.
 
 Commands currently implemented:
+
 - System commands
 - LoRaWan commands
 - LoraP2P commands
 - Radio
 
 Not implemented yet:
+
 - Peripheral
 
 ## Requirements
+
 - A Raspberry Pi!
-- A RAK811 LoRa module ([PiSupply IoT LoRa Node pHAT for Raspberry Pi ](https://uk.pi-supply.com/products/iot-lora-node-phat-for-raspberry-pi))
+- A RAK811 LoRa module ([PiSupply IoT LoRa Node pHAT for Raspberry Pi](https://uk.pi-supply.com/products/iot-lora-node-phat-for-raspberry-pi))
 - On the Raspberry Pi the hardware serial port must be enabled and the serial console disabled (use `raspi-config`)
 - The user running the application must be in the `dialout` and `gpio` groups (this is the default for the `pi` user)
 
 ## Install the rak811 package
+
 The package is installed from PyPI:
-```
+
+```shell
 sudo pip3 install rak811
 ```
 
 The `pip3` command is part of the `python3-pip` package. If it is missing on your system, run:
-```
+
+```shell
 sudo apt-get install python3-pip
 ```
 
 [PiSupply](https://uk.pi-supply.com/) provides [detailed instructions](https://learn.pi-supply.com/make/getting-started-with-the-raspberry-pi-lora-node-phat/) for configuring your Raspberry Pi.
 
 ## Usage
+
 ### Quick start with The Things Network
+
 #### Register your device
+
 Register you device on [TheThingsNetwork](https://www.thethingsnetwork.org) using the unique id of your RAK811 module (Device EUI).  
 You can retrieve your Device EUI with the following command:
-```
+
+```shell
 rak811 hard-reset
 rak811 get-config dev_eui
 ```
+
 _Note_: the `rak811 hard-reset` command is only needed once after (re)booting your Raspberry Pi to activate the module.
 
 #### Hello World
+
 Send your first LoRaWan message wit the following python code snippet:  
 (The App EUI and App Key are copied verbatim from the TTN console)
-```
+
+```shell
 #!/usr/bin/env python3
 from rak811 import Mode, Rak811
 
@@ -66,10 +81,13 @@ lora.dr = 5
 lora.send('Hello world')
 lora.close()
 ```
+
 Your first message should appear on the TTN console!
 
 ### Next steps
+
 See the [example directory on GitHub](https://github.com/AmedeeBulle/pyrak811/tree/master/examples):
+
 - `api_demo.py`: demo most of the API calls
 - `otaa.py`: OTAA example
 - `abp.py`: ABP example
@@ -82,13 +100,15 @@ _Note_: you do not need to `hard_reset` the module each time you run a script.
 However you must do it the first time after a (re)boot to activate the module.
 
 ### balenaCloud
+
 Sample code to use the library with [balenaCloud](https://www.balena.io/): [
 Basic RAK811 example with balenaCloud](https://github.com/AmedeeBulle/pyrak811-balena).
 
 ## Command-line interface
+
 The `rak811` command exposes all library calls to the command line:
 
-```
+```console
 $ rak811 --help
 Usage: rak811 [OPTIONS] COMMAND [ARGS]...
 
@@ -122,7 +142,8 @@ Commands:
 ```
 
 Session example:
-```
+
+```console
 $ rak811 -v reset lora
 LoRa reset complete.
 $ rak811 -v set-config app_eui=70B3D5xxxxxxxxxx app_key=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -144,4 +165,5 @@ RSSI: -56
 SNR: 31
 Data: 123456
 ```
+
 _Note_: for your first session after boot, you will need to do a `hard-reset` instead of a `reset lora` command to activate the module.
