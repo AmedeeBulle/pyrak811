@@ -29,7 +29,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='rak811',
-    version='0.7.3',
+    version='0.8.0.dev1',
     description='Interface for RAK811 LoRa module',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -57,7 +57,8 @@ setup(
             'flake8-comprehensions',
             'flake8-docstrings',
             'flake8-import-order',
-            'pep8-naming==0.5.0',
+            'pep8-naming',
+            'pydocstyle==6.0.0',
             'pytest',
             'mock',
             'coverage',
@@ -67,6 +68,7 @@ setup(
     entry_points={
         'console_scripts': [
             'rak811=rak811.cli:cli',
+            'rak811v3=rak811.cli_v3:cli',
         ],
     },
 
