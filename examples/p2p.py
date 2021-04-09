@@ -64,14 +64,14 @@ try:
             wait_time = next_send - time()
             print('Waiting on message for {:0.0f} seconds'.format(wait_time))
             # Note that you don't have to listen actively for capturing message
-            # Once in receive mode, the library will capure all messages sent.
+            # Once in receive mode, the library will capture all messages sent.
             lora.rx_get(wait_time)
             while lora.nb_downlinks > 0:
                 message = lora.get_downlink()
                 data = message['data']
                 if data[:len(P2P_MAGIC)] == P2P_MAGIC:
                     print(
-                        'Receveid message: {}'.format(
+                        'Received message: {}'.format(
                             int.from_bytes(data[len(P2P_MAGIC):],
                                            byteorder='big')
                         )

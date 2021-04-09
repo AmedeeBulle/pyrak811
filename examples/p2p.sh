@@ -6,7 +6,7 @@
 #
 # Start this script on 2 or more nodes an observe the packets flowing.
 #
-# Copyright 2019 Philippe Vanhaesendonck
+# Copyright 2019, 2021 Philippe Vanhaesendonck
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -52,28 +52,27 @@ do
   NEXT_MESSAGE=$(( NOW + P2P_BASE + ( RANDOM % P2P_RANDOM ) ))
   # Set module in receive mode
   rak811 -v rxc
-  while [ $(date +%s) -lt ${NEXT_MESSAGE} ]
-  do
-	# Remaining time until next message
-  	NOW=$(date +%s)
-	REMAIN=$(( NEXT_MESSAGE - NOW ))
-	echo "Waiting on message for ${REMAIN} seconds"
-	MESSAGE=$(rak811 -v rx-get ${REMAIN})
-	if echo "${MESSAGE}" | grep -q ${P2P_MAGIC}
-	then
-	  echo "Received valid message:"
-	  echo "${MESSAGE}"
-	elif echo "${MESSAGE}" | grep -q Data
-	then
-	  echo "Got foreign message"
-	else
-	  echo "${MESSAGE}"
-	fi
+  while [[ $(date +%s) -lt ${NEXT_MESSAGE} ]]; do
+    # Remaining time until next message
+    NOW=$(date +%s)
+    REMAIN=$(( NEXT_MESSAGE - NOW ))
+    echo "Waiting on message for ${REMAIN} seconds"
+    MESSAGE=$(rak811 -v rx-get ${REMAIN})
+    if echo "${MESSAGE}" | grep -q ${P2P_MAGIC}
+    then
+      echo "Received valid message:"
+      echo "${MESSAGE}"
+    elif echo "${MESSAGE}" | grep -q Data
+    then
+      echo "Got foreign message"
+    else
+      echo "${MESSAGE}"
+    fi
   done
   # Exit receive mode
   rak811 -v rx-stop
   # Send a message
   COUNTER=$(( COUNTER + 1 ))
   MESSAGE=$(printf '%s%08x' ${P2P_MAGIC} ${COUNTER})
-  rak811 -v txc --binary ${MESSAGE}
+  rak811 -v txc --binary "${MESSAGE}"
 done
