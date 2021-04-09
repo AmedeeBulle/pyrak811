@@ -211,3 +211,56 @@ def test_send_receive_json(runner, mock_rak811):
     assert ('"snr": 27') in result.output
     assert ('"len": 4') in result.output
     assert ('"data": "65666768"') in result.output
+
+
+def test_send_p2p(runner, mock_rak811):
+    result = runner.invoke(cli, ['-v', 'send-p2p', 'Hello'])
+    mock_rak811.return_value.send_p2p.assert_called_once_with(
+        data='Hello'
+    )
+    assert 'Message sent.' in result.output
+
+
+def test_send_p2p_binary(runner, mock_rak811):
+    result = runner.invoke(cli, ['-v', 'send-p2p', '--binary', '01020211'])
+    mock_rak811.return_value.send_p2p.assert_called_once_with(
+        data=bytes.fromhex('01020211')
+    )
+    assert 'Message sent.' in result.output
+
+
+def test_receive_p2p(runner, mock_rak811):
+    p = PropertyMock(return_value=1)
+    type(mock_rak811.return_value).nb_downlinks = p
+    mock_rak811.return_value.get_downlink.return_value = {
+        'port': 0,
+        'rssi': -34,
+        'snr': 27,
+        'len': 4,
+        'data': bytes.fromhex('65666768'),
+    }
+    result = runner.invoke(cli, ['-v', 'receive-p2p', '10'])
+    mock_rak811.return_value.receive_p2p.assert_called_once_with(10)
+    assert 'Message received' in result.output
+    assert 'RSSI: -34' in result.output
+    assert 'SNR: 27' in result.output
+    assert 'Data: 65666768' in result.output
+
+
+def test_receive_p2p_json(runner, mock_rak811):
+    p = PropertyMock(return_value=1)
+    type(mock_rak811.return_value).nb_downlinks = p
+    mock_rak811.return_value.get_downlink.return_value = {
+        'port': 0,
+        'rssi': -34,
+        'snr': 27,
+        'len': 4,
+        'data': bytes.fromhex('65666768'),
+    }
+    result = runner.invoke(cli, ['-v', 'receive-p2p', '--json', '10'])
+    mock_rak811.return_value.receive_p2p.assert_called_once_with(10)
+    assert ('"port": 0') in result.output
+    assert ('"rssi": -34') in result.output
+    assert ('"snr": 27') in result.output
+    assert ('"len": 4') in result.output
+    assert ('"data": "65666768"') in result.output

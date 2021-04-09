@@ -120,8 +120,8 @@ See the [example directory on GitHub](https://github.com/AmedeeBulle/pyrak811/tr
 - `api_demo.py`: demo most of the API calls
 - `otaa.py` / `otaa_v3.py`: OTAA example
 - `abp.py` / `abp_v3.py`: ABP example
-- `p2p.py`: P2P example
-- `p2p.sh`: P2P example based on the command-line interface (see below)
+- `p2p.py` / `p2p_v3.py`: P2P example
+- `p2p.sh` / `p2p_v3.sh`: P2P example based on the command-line interface (see below)
 
 To run the examples, first copy the `ttn_secrets_template.py` to `ttn_secrets.py` and enter your LoRaWan [TheThingsNetwork](https://www.thethingsnetwork.org) keys.
 
@@ -216,14 +216,16 @@ Options:
   --help         Show this message and exit.
 
 Commands:
-  get-config  Execute get_config RAK811 command.
-  hard-reset  Hardware reset of the module.
-  help        Print module help.
-  join        Join the configured network.
-  run         Exit boot mode and enter normal mode.
-  send        Send LoRaWan message and check for downlink.
-  set-config  Execute set_config RAK811 command.
-  version     Get module version.
+  get-config   Execute get_config RAK811 command.
+  hard-reset   Hardware reset of the module.
+  help         Print module help.
+  join         Join the configured network.
+  receive-p2p  Get LoraP2P message.
+  run          Exit boot mode and enter normal mode.
+  send         Send LoRaWan message and check for downlink.
+  send-p2p     Send LoRa P2P message.
+  set-config   Execute set_config RAK811 command.
+  version      Get module version.
 ```
 
 Session example:

@@ -229,7 +229,7 @@ def test_join(mock_send, lora):
 
 @patch.object(Rak811, '_get_events')
 @patch.object(Rak811, '_send_command')
-def test_get_send_unconfirmed(mock_send, mock_events, lora):
+def test_send_unconfirmed(mock_send, mock_events, lora):
     """Test send, unconfirmed."""
     mock_events.side_effect = Rak811TimeoutError()
     lora.send('Hello')
@@ -240,7 +240,7 @@ def test_get_send_unconfirmed(mock_send, mock_events, lora):
 
 @patch.object(Rak811, '_get_events', return_value=['0,-68,7,0'])
 @patch.object(Rak811, '_send_command')
-def test_get_send_confirmed(mock_send, mock_events, lora):
+def test_send_confirmed(mock_send, mock_events, lora):
     """Test send, unconfirmed."""
     lora.send('Hello')
     mock_send.assert_called_once_with('send=lora:1:48656c6c6f')
@@ -257,7 +257,7 @@ def test_get_send_confirmed(mock_send, mock_events, lora):
 
 @patch.object(Rak811, '_get_events', return_value=['1,-67,8,3:313233'])
 @patch.object(Rak811, '_send_command')
-def test_get_send_downlink(mock_send, mock_events, lora):
+def test_send_downlink(mock_send, mock_events, lora):
     """Test send, unconfirmed."""
     lora.send('Hello')
     mock_send.assert_called_once_with('send=lora:1:48656c6c6f')
@@ -265,6 +265,28 @@ def test_get_send_downlink(mock_send, mock_events, lora):
     assert lora.nb_downlinks == 1
     assert lora.get_downlink() == {
         'port': 1,
+        'rssi': -67,
+        'snr': 8,
+        'len': 3,
+        'data': bytes.fromhex('313233'),
+    }
+
+
+@patch.object(Rak811, '_send_command')
+def test_send_p2p(mock_send, lora):
+    """Test P2P send."""
+    lora.send_p2p('Hello')
+    mock_send.assert_called_once_with('send=lorap2p:48656c6c6f')
+
+
+@patch.object(Rak811, '_get_events', return_value=['-67,8,3:313233'])
+def test_receive_p2p(mock_events, lora):
+    """Test receive P2P."""
+    lora.receive_p2p(timeout=10)
+    mock_events.assert_called_once_with(10)
+    assert lora.nb_downlinks == 1
+    assert lora.get_downlink() == {
+        'port': 0,
         'rssi': -67,
         'snr': 8,
         'len': 3,

@@ -258,5 +258,70 @@ def send(ctx, port, binary, data, json):
     lora.close()
 
 
+@cli.command()
+@click.option(
+    '--binary',
+    is_flag=True,
+    help='Data is binary (hex encoded)'
+)
+@click.argument(
+    'data',
+    required=True
+)
+@click.pass_context
+def send_p2p(ctx, binary, data):
+    """Send LoRa P2P message."""
+    if binary:
+        try:
+            data = bytes.fromhex(data)
+        except ValueError:
+            click.echo('Invalid binary data')
+            return
+    lora = Rak811()
+    try:
+        lora.send_p2p(data)
+    except Rak811Error as e:
+        print_exception(e)
+        lora.close()
+        return
+
+    if ctx.obj['VERBOSE']:
+        click.echo('Message sent.')
+
+
+@cli.command()
+@click.argument(
+    'timeout',
+    required=False,
+    default=60,
+    type=click.INT
+)
+@click.option(
+    '--json',
+    is_flag=True,
+    help='Output message in JSON format'
+)
+@click.pass_context
+def receive_p2p(ctx, timeout, json):
+    """Get LoraP2P message."""
+    lora = Rak811()
+    lora.receive_p2p(timeout)
+    if lora.nb_downlinks:
+        rx = lora.get_downlink()
+        rx['data'] = rx['data'].hex()
+        if json:
+            click.echo(dumps(rx, indent=4))
+        elif ctx.obj['VERBOSE']:
+            click.echo('Message received:')
+            click.echo('RSSI: {}'.format(rx['rssi']))
+            click.echo('SNR: {}'.format(rx['snr']))
+            click.echo('Data: {}'.format(rx['data']))
+        else:
+            click.echo(rx['data'])
+    elif ctx.obj['VERBOSE']:
+        click.echo('No message available.')
+    lora.close()
+
+
 if __name__ == '__main__':
     cli()

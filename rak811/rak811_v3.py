@@ -461,7 +461,7 @@ class Rak811(object):
             length: Message length.
             data: Message data
         """
-        r_port = self._int(port)
+        r_port = 0 if port is None else self._int(port)
         r_rssi = self._int(rssi)
         r_snr = self._int(snr)
         r_len = self._int(length)
@@ -499,10 +499,11 @@ class Rak811(object):
         events = self._get_events(timeout)
         # Check for downlink
         for event in events:
-            # Format: <port>,<rssi>,<snr>,<len>[:<data>]
-            m = match(r'(\d+),(-?\d+),(-?\d+),(\d+)(:(.*))?$', event)
+            # LoRaWan format: <port>,<rssi>,<snr>,<len>[:<data>]
+            # LoRa P2P format: ,<rssi>,<snr>,<len>[:<data>]
+            m = match(r'((\d+),)?(-?\d+),(-?\d+),(\d+)(:(.*))?$', event)
             if m:
-                port, rssi, snr, length, data = m.group(1, 2, 3, 4, 6)
+                _, port, rssi, snr, length, _, data = m.groups()
                 self._add_downlink(port, rssi, snr, length, data)
             else:
                 raise Rak811ResponseError(ErrorCode.ERR_INVALID_EVENT)
@@ -533,3 +534,39 @@ class Rak811(object):
             return self._downlink.pop(0)
 
     """ LoraP2P commands."""
+
+    def send_p2p(self, data: Union[bytes, str]) -> None:
+        """Send P2P message.
+
+        Args:
+            data: data to be sent. If the datatype is bytes it will be send
+                as such. Strings will be converted to bytes.
+
+        Raises:
+            - Rak811TimeoutError: no answer
+            - Rak811ResponseError: error returned
+        """
+        if type(data) is not bytes:
+            data = (bytes)(data, 'utf-8')
+        data = hexlify(data).decode('ascii')
+
+        self._send_command(f'send=lorap2p:{data}')
+
+    def receive_p2p(self, timeout: float) -> None:
+        """Wait for P2P message.
+
+        The method wil return when one or more messages are received or when
+        timeout is reached.
+
+        The method does not return messages, use nb_downlinks and
+        get_downlink() to fetch downlinks.
+
+        Args:
+            timeout: maximum time to wait.
+        """
+        try:
+            self._process_events(timeout=timeout)
+        except Rak811TimeoutError:
+            logger.debug('Nothing received')
+        else:
+            logger.debug('Message available')
