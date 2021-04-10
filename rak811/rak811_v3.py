@@ -196,6 +196,8 @@ class Rak811(object):
         GPIO.output(RESET_BCM_PORT, GPIO.HIGH)
         sleep(RESET_POST)
 
+    """ Private methods."""
+
     def _int(self, i: str) -> Union[int, str]:
         """Attempt int conversion.
 
@@ -313,7 +315,64 @@ class Rak811(object):
         return [i[len(RESPONSE_EVENT):] if i.startswith(RESPONSE_EVENT) else i for i in
                 self._serial.receive(single=False, timeout=timeout)]
 
-    """Get / set commands."""
+    def _add_downlink(self, port: str, rssi: str, snr: str, length: str, data: str) -> None:
+        """Add message to the downlink list.
+
+        Args:
+            port: Message port.
+            rssi: Message RSSI.
+            snr: Message SNR.
+            length: Message length.
+            data: Message data
+        """
+        r_port = 0 if port is None else self._int(port)
+        r_rssi = self._int(rssi)
+        r_snr = self._int(snr)
+        r_len = self._int(length)
+        if r_len > 0:
+            try:
+                r_data = bytes.fromhex(data)
+            except ValueError:
+                r_data = ''
+        else:
+            r_data = ''
+        self._downlink.append(
+            {
+                'port': r_port,
+                'rssi': r_rssi,
+                'snr': r_snr,
+                'len': r_len,
+                'data': r_data,
+            }
+        )
+
+    def _process_events(self, timeout=None) -> None:
+        """Process module event queue.
+
+        Process event queue looking for incoming (downlink) messages.
+
+        Args:
+            timeout (optional): maximum time to wait for event.
+                Defaults to None.
+
+        Raises:
+            - Rak811TimeoutError: no answer
+            - Rak811ResponseError: error returned or unexpected response
+                received
+        """
+        events = self._get_events(timeout)
+        # Check for downlink
+        for event in events:
+            # LoRaWan format: <port>,<rssi>,<snr>,<len>[:<data>]
+            # LoRa P2P format: ,<rssi>,<snr>,<len>[:<data>]
+            m = match(r'((\d+),)?(-?\d+),(-?\d+),(\d+)(:(.*))?$', event)
+            if m:
+                _, port, rssi, snr, length, _, data = m.groups()
+                self._add_downlink(port, rssi, snr, length, data)
+            else:
+                raise Rak811ResponseError(ErrorCode.ERR_INVALID_EVENT)
+
+    """Generic get / set commands."""
 
     def set_config(self, config: str) -> List[str]:
         """Execute set_config command.
@@ -399,7 +458,25 @@ class Rak811(object):
 
     """Interface commands."""
 
-    # ToDo: send UART
+    def send_uart(self, data: Union[bytes, str], index: int = 3) -> None:
+        """Send data over UART.
+
+        Args:
+            data: data to be sent. If the datatype is bytes it will be send
+                as such. Strings will be converted to bytes.
+            index (optional): UART index to use (1, 3). Defaults to 3.
+                UART1 is the AT Command interface, so you probably want to use
+                UART3!
+
+        Raises:
+            - Rak811TimeoutError: no answer
+            - Rak811ResponseError: error returned
+        """
+        if type(data) is not bytes:
+            data = (bytes)(data, 'utf-8')
+        data = hexlify(data).decode('ascii')
+
+        self._send_command(f'send=uart:{index}:{data}')
 
     """LoRa commands"""
 
@@ -450,63 +527,6 @@ class Rak811(object):
             logger.debug('No downlink')
         else:
             logger.debug('Downlink available')
-
-    def _add_downlink(self, port: str, rssi: str, snr: str, length: str, data: str) -> None:
-        """Add message to the downlink list.
-
-        Args:
-            port: Message port.
-            rssi: Message RSSI.
-            snr: Message SNR.
-            length: Message length.
-            data: Message data
-        """
-        r_port = 0 if port is None else self._int(port)
-        r_rssi = self._int(rssi)
-        r_snr = self._int(snr)
-        r_len = self._int(length)
-        if r_len > 0:
-            try:
-                r_data = bytes.fromhex(data)
-            except ValueError:
-                r_data = ''
-        else:
-            r_data = ''
-        self._downlink.append(
-            {
-                'port': r_port,
-                'rssi': r_rssi,
-                'snr': r_snr,
-                'len': r_len,
-                'data': r_data,
-            }
-        )
-
-    def _process_events(self, timeout=None) -> None:
-        """Process module event queue.
-
-        Process event queue looking for incoming (downlink) messages.
-
-        Args:
-            timeout (optional): maximum time to wait for event.
-                Defaults to None.
-
-        Raises:
-            - Rak811TimeoutError: no answer
-            - Rak811ResponseError: error returned or unexpected response
-                received
-        """
-        events = self._get_events(timeout)
-        # Check for downlink
-        for event in events:
-            # LoRaWan format: <port>,<rssi>,<snr>,<len>[:<data>]
-            # LoRa P2P format: ,<rssi>,<snr>,<len>[:<data>]
-            m = match(r'((\d+),)?(-?\d+),(-?\d+),(\d+)(:(.*))?$', event)
-            if m:
-                _, port, rssi, snr, length, _, data = m.groups()
-                self._add_downlink(port, rssi, snr, length, data)
-            else:
-                raise Rak811ResponseError(ErrorCode.ERR_INVALID_EVENT)
 
     @property
     def nb_downlinks(self) -> int:

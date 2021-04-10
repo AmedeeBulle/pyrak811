@@ -87,6 +87,39 @@ def test_run(runner, mock_rak811):
     p.assert_called_once_with()
 
 
+def test_send_uart(runner, mock_rak811):
+    result = runner.invoke(cli, ['-v', 'send-uart', 'Hello'])
+    mock_rak811.return_value.send_uart.assert_called_once_with(
+        data='Hello',
+        index=3
+    )
+    assert 'Data sent.' in result.output
+
+
+def test_send_uart_binary(runner, mock_rak811):
+    result = runner.invoke(cli, ['-v', 'send-uart', '--binary', '01020211'])
+    mock_rak811.return_value.send_uart.assert_called_once_with(
+        data=bytes.fromhex('01020211'),
+        index=3
+    )
+    assert 'Data sent.' in result.output
+
+
+def test_send_uart_binary_invalid(runner, mock_rak811):
+    result = runner.invoke(cli, ['-v', 'send-uart', '--binary', '010202xx'])
+    assert result.output == 'Invalid binary data\n'
+
+
+def test_send_uart_error(runner, mock_rak811):
+    mock_rak811.return_value.send_uart.side_effect = Rak811ResponseError(5)
+    result = runner.invoke(cli, ['-v', 'send-uart', 'Hello'])
+    mock_rak811.return_value.send_uart.assert_called_once_with(
+        data='Hello',
+        index=3
+    )
+    assert result.output == 'RAK811 response error 5: Error sending through UART\n'
+
+
 def test_join(runner, mock_rak811):
     result = runner.invoke(cli, ['-v', 'join'])
     mock_rak811.return_value.join.assert_called_once()
@@ -227,6 +260,20 @@ def test_send_p2p_binary(runner, mock_rak811):
         data=bytes.fromhex('01020211')
     )
     assert 'Message sent.' in result.output
+
+
+def test_send_p2p_binary_invalid(runner, mock_rak811):
+    result = runner.invoke(cli, ['-v', 'send-p2p', '--binary', '010202xx'])
+    assert result.output == 'Invalid binary data\n'
+
+
+def test_send_p2p_error(runner, mock_rak811):
+    mock_rak811.return_value.send_p2p.side_effect = Rak811ResponseError(93)
+    result = runner.invoke(cli, ['-v', 'send-p2p', 'Hello'])
+    mock_rak811.return_value.send_p2p.assert_called_once_with(
+        data='Hello'
+    )
+    assert result.output == 'RAK811 response error 93: Status is error\n'
 
 
 def test_receive_p2p(runner, mock_rak811):

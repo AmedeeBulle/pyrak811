@@ -224,6 +224,7 @@ Commands:
   run          Exit boot mode and enter normal mode.
   send         Send LoRaWan message and check for downlink.
   send-p2p     Send LoRa P2P message.
+  send-uart    Send data to UART.
   set-config   Execute set_config RAK811 command.
   version      Get module version.
 ```

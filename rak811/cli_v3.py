@@ -166,6 +166,50 @@ def run(ctx):
     lora.close()
 
 
+""" Interface commands."""
+
+
+@cli.command()
+@click.option(
+    '-i', '--index',
+    default='3',
+    type=click.Choice(['1', '3']),
+    help='UART Index (1 or 3, default 3)'
+)
+@click.option(
+    '--binary',
+    is_flag=True,
+    help='Data is binary (hex encoded)'
+)
+@click.argument(
+    'data',
+    required=True
+)
+@click.pass_context
+def send_uart(ctx, index, binary, data):
+    """Send data to UART.
+
+    UART1 is the AT Command interface, so you probably want to use
+    UART3!
+    """
+    if binary:
+        try:
+            data = bytes.fromhex(data)
+        except ValueError:
+            click.echo('Invalid binary data')
+            return
+    lora = Rak811()
+    try:
+        lora.send_uart(data, int(index))
+    except Rak811Error as e:
+        print_exception(e)
+        lora.close()
+        return
+
+    if ctx.obj['VERBOSE']:
+        click.echo('Data sent.')
+
+
 """LoRaWan commands."""
 
 

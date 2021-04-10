@@ -221,6 +221,13 @@ def test_run(mock_send, lora):
 
 
 @patch.object(Rak811, '_send_command')
+def test_send_uart(mock_send, lora):
+    """Test UART send."""
+    lora.send_uart('Hello')
+    mock_send.assert_called_once_with('send=uart:3:48656c6c6f')
+
+
+@patch.object(Rak811, '_send_command')
 def test_join(mock_send, lora):
     """Test join command."""
     lora.join()
