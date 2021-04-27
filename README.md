@@ -117,7 +117,7 @@ Your first message should appear on the TTN console!
 
 See the [example directory on GitHub](https://github.com/AmedeeBulle/pyrak811/tree/master/examples):
 
-- `api_demo.py`: demo most of the API calls
+- `api_demo.py`: demo most of the V2.0.x API calls
 - `otaa.py` / `otaa_v3.py`: OTAA example
 - `abp.py` / `abp_v3.py`: ABP example
 - `p2p.py` / `p2p_v3.py`: P2P example
@@ -131,7 +131,7 @@ However you must do it the first time after a (re)boot to activate the module.
 ### balenaCloud
 
 Sample code to use the library with [balenaCloud](https://www.balena.io/): [
-Basic RAK811 example with balenaCloud](https://github.com/AmedeeBulle/pyrak811-balena).
+Basic RAK811 example with balenaCloud](https://github.com/AmedeeBulle/pyrak811-balena) (V2.0.x firmware).
 
 ## Command-line interface
 
