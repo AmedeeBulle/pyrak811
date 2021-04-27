@@ -1,8 +1,8 @@
 # RAK811 Python 3 library for Raspberry Pi
 
 [![Latest Version](https://img.shields.io/pypi/v/rak811.svg)](https://pypi.org/project/rak811/)
-[![Build Status](https://travis-ci.org/AmedeeBulle/pyrak811.svg?branch=master)](https://travis-ci.org/AmedeeBulle/pyrak811)
-[![codecov](https://codecov.io/gh/AmedeeBulle/pyrak811/branch/master/graph/badge.svg)](https://codecov.io/gh/AmedeeBulle/pyrak811)
+[![Build Status](https://travis-ci.org/AmedeeBulle/pyrak811.svg?branch=main)](https://travis-ci.org/AmedeeBulle/pyrak811)
+[![codecov](https://codecov.io/gh/AmedeeBulle/pyrak811/branch/main/graph/badge.svg)](https://codecov.io/gh/AmedeeBulle/pyrak811)
 
 ## About
 
@@ -10,8 +10,8 @@ RAK811 Python 3 library and command-line interface for use with the Raspberry Pi
 
 The library exposes the RAK811 module AT commands as described in the following documents:
 
-- [RAK811 Lora AT Command User Guide V1.5](https://github.com/AmedeeBulle/pyrak811/blob/master/DOCS/RAK811%C2%A0LoRa%C2%A0AT%C2%A0Command%C2%A0V1.5.pdf) for modules with the V2.0.x firmware.
-- [RAK811 AT Command Manual V1.0](https://github.com/AmedeeBulle/pyrak811/blob/master/DOCS/RAK811_AT_Command_Manual_V1.0.pdf) for modules with the V3.0.x firmware.
+- [RAK811 Lora AT Command User Guide V1.5](https://github.com/AmedeeBulle/pyrak811/blob/main/DOCS/RAK811%C2%A0LoRa%C2%A0AT%C2%A0Command%C2%A0V1.5.pdf) for modules with the V2.0.x firmware.
+- [RAK811 AT Command Manual V1.0](https://github.com/AmedeeBulle/pyrak811/blob/main/DOCS/RAK811_AT_Command_Manual_V1.0.pdf) for modules with the V3.0.x firmware.
 
 The command-line interface exposes all API calls to the command line.
 
@@ -115,7 +115,7 @@ Your first message should appear on the TTN console!
 
 ### Next steps
 
-See the [example directory on GitHub](https://github.com/AmedeeBulle/pyrak811/tree/master/examples):
+See the [example directory on GitHub](https://github.com/AmedeeBulle/pyrak811/tree/main/examples):
 
 - `api_demo.py`: demo most of the V2.0.x API calls
 - `otaa.py` / `otaa_v3.py`: OTAA example
