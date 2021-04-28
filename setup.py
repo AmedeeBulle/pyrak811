@@ -49,7 +49,8 @@ setup(
     install_requires=[
         'click>=7.1',
         'pyserial',
-        'RPi.GPIO; platform_machine=="armv7l" or platform_machine=="armv6l"'
+        'RPi.GPIO; platform_machine=="armv7l" or platform_machine=="armv6l"',
+        'setuptools'
     ],
     extras_require={
         'test': [
