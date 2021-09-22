@@ -415,7 +415,7 @@ def test_set_rf_config_invalid_range(runner, mock_rak811):
     result = runner.invoke(cli, ['rf-config', 'sf=1'])
     assert (
         "Error: Invalid value for 'KEY=VALUE...': "
-        '1 is not in the valid range of 6 to 12.\n'
+        '1 is not in the range 6<=x<=12.\n'
     ) in result.output
 
 

@@ -240,7 +240,7 @@ def test_send_unconfirmed(mock_send, mock_events, lora):
     """Test send, unconfirmed."""
     mock_events.side_effect = Rak811TimeoutError()
     lora.send('Hello')
-    mock_send.assert_called_once_with('send=lora:1:48656c6c6f')
+    mock_send.assert_called_once_with('send=lora:1:48656c6c6f', timeout=300)
     mock_events.assert_called_once()
     assert lora.nb_downlinks == 0
 
@@ -250,7 +250,7 @@ def test_send_unconfirmed(mock_send, mock_events, lora):
 def test_send_confirmed(mock_send, mock_events, lora):
     """Test send, unconfirmed."""
     lora.send('Hello')
-    mock_send.assert_called_once_with('send=lora:1:48656c6c6f')
+    mock_send.assert_called_once_with('send=lora:1:48656c6c6f', timeout=300)
     mock_events.assert_called_once()
     assert lora.nb_downlinks == 1
     assert lora.get_downlink() == {
@@ -258,7 +258,7 @@ def test_send_confirmed(mock_send, mock_events, lora):
         'rssi': -68,
         'snr': 7,
         'len': 0,
-        'data': '',
+        'data': b'',
     }
 
 
@@ -267,7 +267,7 @@ def test_send_confirmed(mock_send, mock_events, lora):
 def test_send_downlink(mock_send, mock_events, lora):
     """Test send, unconfirmed."""
     lora.send('Hello')
-    mock_send.assert_called_once_with('send=lora:1:48656c6c6f')
+    mock_send.assert_called_once_with('send=lora:1:48656c6c6f', timeout=300)
     mock_events.assert_called_once()
     assert lora.nb_downlinks == 1
     assert lora.get_downlink() == {
