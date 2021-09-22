@@ -333,9 +333,9 @@ class Rak811(object):
             try:
                 r_data = bytes.fromhex(data)
             except ValueError:
-                r_data = ''
+                r_data = b''
         else:
-            r_data = ''
+            r_data = b''
         self._downlink.append(
             {
                 'port': r_port,
@@ -516,7 +516,7 @@ class Rak811(object):
             data = (bytes)(data, 'utf-8')
         data = hexlify(data).decode('ascii')
 
-        self._send_command(f'send=lora:{port}:{data}')
+        self._send_command(f'send=lora:{port}:{data}', timeout=self._event_timeout)
 
         # Process events - Check for downlink / send confirmation
         # It is issued immediately after the "OK" response so don't have to
