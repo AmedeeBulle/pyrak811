@@ -333,9 +333,9 @@ class Rak811(object):
             try:
                 r_data = bytes.fromhex(data)
             except ValueError:
-                r_data = ''
+                r_data = b''
         else:
-            r_data = ''
+            r_data = b''
         self._downlink.append(
             {
                 'port': r_port,
