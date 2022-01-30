@@ -521,12 +521,14 @@ class Rak811(object):
         # Process events - Check for downlink / send confirmation
         # It is issued immediately after the "OK" response so don't have to
         # wait long.
-        try:
-            self._process_events(timeout=0.1)
-        except Rak811TimeoutError:
-            logger.debug('No downlink')
-        else:
-            logger.debug('Downlink available')
+        while True:
+            try:
+                self._process_events(timeout=0.1)
+            except Rak811TimeoutError:
+                logger.debug('No downlink')
+                break
+            else:
+                logger.debug('Downlink available')
 
     @property
     def nb_downlinks(self) -> int:

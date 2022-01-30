@@ -245,13 +245,17 @@ def test_send_unconfirmed(mock_send, mock_events, lora):
     assert lora.nb_downlinks == 0
 
 
-@patch.object(Rak811, '_get_events', return_value=['0,-68,7,0'])
+@patch.object(Rak811, '_get_events')
 @patch.object(Rak811, '_send_command')
 def test_send_confirmed(mock_send, mock_events, lora):
-    """Test send, unconfirmed."""
+    """Test send, confirmed."""
+    mock_events.side_effect = [
+        ['0,-68,7,0'],
+        Rak811TimeoutError(),
+    ]
     lora.send('Hello')
     mock_send.assert_called_once_with('send=lora:1:48656c6c6f', timeout=300)
-    mock_events.assert_called_once()
+    mock_events.assert_called()
     assert lora.nb_downlinks == 1
     assert lora.get_downlink() == {
         'port': 0,
@@ -262,13 +266,17 @@ def test_send_confirmed(mock_send, mock_events, lora):
     }
 
 
-@patch.object(Rak811, '_get_events', return_value=['1,-67,8,3:313233'])
+@patch.object(Rak811, '_get_events')
 @patch.object(Rak811, '_send_command')
 def test_send_downlink(mock_send, mock_events, lora):
-    """Test send, unconfirmed."""
+    """Test send, downlink available."""
+    mock_events.side_effect = [
+        ['1,-67,8,3:313233'],
+        Rak811TimeoutError(),
+    ]
     lora.send('Hello')
     mock_send.assert_called_once_with('send=lora:1:48656c6c6f', timeout=300)
-    mock_events.assert_called_once()
+    mock_events.assert_called()
     assert lora.nb_downlinks == 1
     assert lora.get_downlink() == {
         'port': 1,
@@ -276,6 +284,35 @@ def test_send_downlink(mock_send, mock_events, lora):
         'snr': 8,
         'len': 3,
         'data': bytes.fromhex('313233'),
+    }
+
+
+@patch.object(Rak811, '_get_events')
+@patch.object(Rak811, '_send_command')
+def test_send_downlink_multiple(mock_send, mock_events, lora):
+    """Test send, multiple downlinks available."""
+    mock_events.side_effect = [
+        ['1,-67,8,3:313233'],
+        ['1,-68,9,2:3435'],
+        Rak811TimeoutError(),
+    ]
+    lora.send('Hello')
+    mock_send.assert_called_once_with('send=lora:1:48656c6c6f', timeout=300)
+    mock_events.assert_called()
+    assert lora.nb_downlinks == 2
+    assert lora.get_downlink() == {
+        'port': 1,
+        'rssi': -67,
+        'snr': 8,
+        'len': 3,
+        'data': bytes.fromhex('313233'),
+    }
+    assert lora.get_downlink() == {
+        'port': 1,
+        'rssi': -68,
+        'snr': 9,
+        'len': 2,
+        'data': bytes.fromhex('3435'),
     }
 
 
