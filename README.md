@@ -119,6 +119,7 @@ See the [example directory on GitHub](https://github.com/AmedeeBulle/pyrak811/tr
 
 - `api_demo.py`: demo most of the V2.0.x API calls
 - `otaa.py` / `otaa_v3.py`: OTAA example
+- `otaa_v3_class_c.py`: OTAA example with device in Class C mode
 - `abp.py` / `abp_v3.py`: ABP example
 - `p2p.py` / `p2p_v3.py`: P2P example
 - `p2p.sh` / `p2p_v3.sh`: P2P example based on the command-line interface (see below)
