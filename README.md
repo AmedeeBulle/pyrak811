@@ -1,7 +1,7 @@
 # RAK811 Python 3 library for Raspberry Pi
 
 [![Latest Version](https://img.shields.io/pypi/v/rak811.svg)](https://pypi.org/project/rak811/)
-[![Build Status](https://travis-ci.org/AmedeeBulle/pyrak811.svg?branch=main)](https://travis-ci.org/AmedeeBulle/pyrak811)
+[![GitHub Action (Test and Publish)](https://github.com/AmedeeBulle/pyrak811/actions/workflows/test-and-publish.yml/badge.svg)](https://github.com/AmedeeBulle/pyrak811)
 [![codecov](https://codecov.io/gh/AmedeeBulle/pyrak811/branch/main/graph/badge.svg)](https://codecov.io/gh/AmedeeBulle/pyrak811)
 
 ## About

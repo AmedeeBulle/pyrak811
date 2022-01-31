@@ -29,7 +29,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='rak811',
-    version='0.8.4',
+    use_scm_version={"local_scheme": "no-local-version"},
     description='Interface for RAK811 LoRa module',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -46,6 +46,7 @@ setup(
     ],
     packages=find_packages(),
     python_requires='>=3.5',
+    setup_requires=['setuptools_scm'],
     install_requires=[
         'click>=7.1',
         'pyserial',

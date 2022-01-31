@@ -7,4 +7,5 @@ build
 dist
 .coverage
 htmlcov
+coverage.xml
 .tox
