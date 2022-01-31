@@ -1,6 +1,6 @@
 """Interface with the RAK811 module (Firmware V3.0).
 
-Copyright 2021 Philippe Vanhaesendonck
+Copyright 2021, 2022 Philippe Vanhaesendonck
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -248,7 +248,7 @@ class Rak811(object):
         while not (response.startswith(RESPONSE_OK)
                    or response.startswith(RESPONSE_INIT_OK)
                    or response.startswith(RESPONSE_ERROR)):
-            response = self._serial.receive()
+            response = self._serial.receive(timeout=timeout)
 
         if response.startswith(RESPONSE_ERROR):
             raise Rak811ResponseError(response[len(RESPONSE_ERROR):])
