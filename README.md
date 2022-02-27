@@ -1,12 +1,12 @@
 # RAK811 Python 3 library for Raspberry Pi
 
 [![Latest Version](https://img.shields.io/pypi/v/rak811.svg)](https://pypi.org/project/rak811/)
-[![Build Status](https://travis-ci.org/AmedeeBulle/pyrak811.svg?branch=main)](https://travis-ci.org/AmedeeBulle/pyrak811)
+[![GitHub Action (Test and Publish)](https://github.com/AmedeeBulle/pyrak811/actions/workflows/test-and-publish.yml/badge.svg)](https://github.com/AmedeeBulle/pyrak811)
 [![codecov](https://codecov.io/gh/AmedeeBulle/pyrak811/branch/main/graph/badge.svg)](https://codecov.io/gh/AmedeeBulle/pyrak811)
 
 ## About
 
-RAK811 Python 3 library and command-line interface for use with the Raspberry Pi LoRa pHAT.
+RAK811 Python 3 library and command-line interface for use with the Raspberry Pi LoRa (p)HAT.
 
 The library exposes the RAK811 module AT commands as described in the following documents:
 
@@ -18,7 +18,7 @@ The command-line interface exposes all API calls to the command line.
 ## Requirements
 
 - A Raspberry Pi!
-- A RAK811 LoRa module ([PiSupply IoT LoRa Node pHAT for Raspberry Pi](https://uk.pi-supply.com/products/iot-lora-node-phat-for-raspberry-pi))
+- A RAK811 LoRa module ([PiSupply IoT LoRa Node pHAT for Raspberry Pi](https://uk.pi-supply.com/products/iot-lora-node-phat-for-raspberry-pi) / [RAK811 WisNode - LoRa](https://news.rakwireless.com/wisnode-lora-quick-start/))
 - On the Raspberry Pi the hardware serial port must be enabled and the serial console disabled (use `raspi-config`)
 - The user running the application must be in the `dialout` and `gpio` groups (this is the default for the `pi` user)
 
@@ -119,6 +119,7 @@ See the [example directory on GitHub](https://github.com/AmedeeBulle/pyrak811/tr
 
 - `api_demo.py`: demo most of the V2.0.x API calls
 - `otaa.py` / `otaa_v3.py`: OTAA example
+- `otaa_v3_class_c.py`: OTAA example with device in Class C mode
 - `abp.py` / `abp_v3.py`: ABP example
 - `p2p.py` / `p2p_v3.py`: P2P example
 - `p2p.sh` / `p2p_v3.sh`: P2P example based on the command-line interface (see below)

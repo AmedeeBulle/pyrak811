@@ -1,6 +1,6 @@
 """Interface with the RAK811 module (Firmware V3.0).
 
-Copyright 2021 Philippe Vanhaesendonck
+Copyright 2021, 2022 Philippe Vanhaesendonck
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -241,6 +241,13 @@ class Rak811(object):
         if timeout is None:
             timeout = self._response_timeout
 
+        # Process possible pending events
+        try:
+            self._process_events(timeout=0.01)
+            logger.debug('Pending event queue flushed')
+        except (Rak811ResponseError, Rak811TimeoutError):
+            pass
+
         self._serial.send_command(command)
         response = self._serial.receive(timeout=timeout)
 
@@ -248,7 +255,7 @@ class Rak811(object):
         while not (response.startswith(RESPONSE_OK)
                    or response.startswith(RESPONSE_INIT_OK)
                    or response.startswith(RESPONSE_ERROR)):
-            response = self._serial.receive()
+            response = self._serial.receive(timeout=timeout)
 
         if response.startswith(RESPONSE_ERROR):
             raise Rak811ResponseError(response[len(RESPONSE_ERROR):])
@@ -524,9 +531,11 @@ class Rak811(object):
         try:
             self._process_events(timeout=0.1)
         except Rak811TimeoutError:
-            logger.debug('No downlink')
-        else:
+            pass
+        if self.nb_downlinks:
             logger.debug('Downlink available')
+        else:
+            logger.debug('No downlink')
 
     @property
     def nb_downlinks(self) -> int:
@@ -587,6 +596,8 @@ class Rak811(object):
         try:
             self._process_events(timeout=timeout)
         except Rak811TimeoutError:
-            logger.debug('Nothing received')
-        else:
+            pass
+        if self.nb_downlinks:
             logger.debug('Message available')
+        else:
+            logger.debug('Nothing received')
