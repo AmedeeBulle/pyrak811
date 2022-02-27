@@ -38,7 +38,7 @@ from time import sleep
 from timeit import default_timer as timer
 from traceback import print_exc
 
-from rak811.rak811_v3 import Rak811
+from rak811.rak811_v3 import Rak811, Rak811ResponseError
 from ttn_secrets import APP_EUI, APP_KEY
 
 # Set level to logging.DEBUG for a verbose output
@@ -82,7 +82,10 @@ print("You can send downlinks from the TTN console")
 try:
     while True:
         print("Waiting for downlinks...")
-        lora.receive_p2p(60)
+        try:
+            lora.receive_p2p(60)
+        except Rak811ResponseError as e:
+            print("Error while waiting for downlink {}: {}".format(e.errno, e.strerror))
         while lora.nb_downlinks:
             data = lora.get_downlink()["data"]
             if data != b"":
@@ -91,8 +94,12 @@ try:
                 sleep(randint(5, 10))
                 print("Sending back results")
                 start_time = timer()
-                lora.send(data)
-                print("Packet sent in {:.2f} secs".format(timer() - start_time))
+                try:
+                    lora.send(data)
+                    print("Packet sent in {:.2f} secs".format(timer() - start_time))
+                except Rak811ResponseError as e:
+                    print("Error while sendind data {}: {}".format(e.errno, e.strerror))
+
 
 except KeyboardInterrupt:
     print()
