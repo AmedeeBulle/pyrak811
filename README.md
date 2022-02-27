@@ -6,7 +6,7 @@
 
 ## About
 
-RAK811 Python 3 library and command-line interface for use with the Raspberry Pi LoRa pHAT.
+RAK811 Python 3 library and command-line interface for use with the Raspberry Pi LoRa (p)HAT.
 
 The library exposes the RAK811 module AT commands as described in the following documents:
 
@@ -18,7 +18,7 @@ The command-line interface exposes all API calls to the command line.
 ## Requirements
 
 - A Raspberry Pi!
-- A RAK811 LoRa module ([PiSupply IoT LoRa Node pHAT for Raspberry Pi](https://uk.pi-supply.com/products/iot-lora-node-phat-for-raspberry-pi))
+- A RAK811 LoRa module ([PiSupply IoT LoRa Node pHAT for Raspberry Pi](https://uk.pi-supply.com/products/iot-lora-node-phat-for-raspberry-pi) / [RAK811 WisNode - LoRa](https://news.rakwireless.com/wisnode-lora-quick-start/))
 - On the Raspberry Pi the hardware serial port must be enabled and the serial console disabled (use `raspi-config`)
 - The user running the application must be in the `dialout` and `gpio` groups (this is the default for the `pi` user)
 
